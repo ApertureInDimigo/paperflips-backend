@@ -42,6 +42,10 @@ module.exports = function(app:any)
 
       //restful API 구현부
       
+      app.get('/recipe_step', (req:any, res:any) => {
+        
+        res.render('index.html')
+      });
 
        app.get('/recipe_step', (req:any, res:any) => {
         connection.query('SELECT * from recipe_step_info', (error:any, rows:any) => {

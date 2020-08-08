@@ -16,6 +16,9 @@ module.exports = function (app) {
     app.use('/rec', recipeRouter);
     //restful API 구현부
     app.get('/recipe_step', function (req, res) {
+        res.render('index.html');
+    });
+    app.get('/recipe_step', function (req, res) {
         connection.query('SELECT * from recipe_step_info', function (error, rows) {
             if (error)
                 console.log(error);
