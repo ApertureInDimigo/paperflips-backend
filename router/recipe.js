@@ -11,8 +11,10 @@ router.get('/data/:seq', function (req, res) {
         console.log('undefined');
     console.log('recipe get');
     connection.query('SELECT recipeName,rarity,summary from Recipe WHERE seq=\'' + req.params.seq + '\'', function (error, rows) {
-        if (error)
+        if (error) {
             console.log(error);
+            res.send(JSON.parse('{\"status\" : 404}'));
+        }
         console.log('recipe info is: ', rows);
         try {
             var obj = JSON.stringify(rows);

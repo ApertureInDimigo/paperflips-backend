@@ -15,7 +15,10 @@ router.get('/data/:seq', (req:any, res:any) => {
     console.log('recipe get')
 
     connection.query('SELECT recipeName,rarity,summary from Recipe WHERE seq=\''+req.params.seq + '\'', (error:any, rows:any) => {
-     if (error) console.log(error);
+     if (error) {
+       console.log(error);
+       res.send(JSON.parse('{\"status\" : 404}'));
+     }
      console.log('recipe info is: ', rows);
 
      try{
