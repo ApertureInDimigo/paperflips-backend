@@ -6,24 +6,38 @@ var mysql = require('mysql'); //mysql 모듈
 var dbconfig = require('../config/database.ts'); //database 구조
 var connection = mysql.createConnection(dbconfig); //mysql 연결
 var util_1 = require("util");
+function checkconnect() {
+    connection.on('error', function (err) {
+        console.log('db error', err);
+        if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+            connection = mysql.createConnection(dbconfig);
+        }
+        else {
+            throw err;
+        }
+    });
+}
 router.get('/data/:seq', function (req, res) {
     if (util_1.isUndefined(req.params.seq))
         console.log('undefined');
+    checkconnect();
     console.log('recipe get');
     connection.query('SELECT recipeName,rarity,summary from Recipe WHERE seq=\'' + req.params.seq + '\'', function (error, rows) {
         if (error) {
             console.log(error);
-            res.send(JSON.parse('{\"status\" : 404}'));
+            // res.send(JSON.parse('{\"status\" : 404}'));
         }
         console.log('recipe info is: ', rows);
         try {
             var obj = JSON.stringify(rows);
-            var obj2 = JSON.parse(obj.substring(1, obj.length - 2) + "," + "\"status\": 200}");
+            // let obj2:any = JSON.parse( "{" + obj + "," + "\"status\": 200}");
+            var obj2 = JSON.parse("{" + "\"data\":" + obj.substring(1, obj.length - 1) + "," + "\"status\": 200" + "}");
             res.send(obj2);
+            //  res.send(obj2);
         }
         catch (e) {
+            console.log(e);
             res.send(JSON.parse('{\"status\" : 404}'));
-            '{\"status\" : 404}';
         }
     });
 });
