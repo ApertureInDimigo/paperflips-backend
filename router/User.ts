@@ -4,13 +4,25 @@ let router = express.Router();
 
 const mysql:any = require('mysql');       //mysql 모듈
 const dbconfig:any = require('../config/database.ts'); //database 구조
-const connection:any = mysql.createConnection(dbconfig); //mysql 연결
+let connection:any = mysql.createConnection(dbconfig); //mysql 연결
 
 import { log } from '../log/log';  //로그 임포트
 import { isUndefined, callbackify } from 'util';
 
+function checkconnect() {
+  connection.on('error', function(err:any) {
+    console.log('db error', err);
+    if(err.code === 'PROTOCOL_CONNECTION_LOST') { 
+      connection = mysql.createConnection(dbconfig);                      
+    } else {                                    
+      throw err;                              
+    }
+  });
+}
 
 router.get('/users', (req:any, res:any) => {
+  checkconnect();
+
     log('GET USERS', 'default');
 
      connection.query('SELECT * from Users', (error:any, rows:any) => {
@@ -22,13 +34,15 @@ router.get('/users', (req:any, res:any) => {
 
 
    router.post('/Adduser',(req:any, res:any) => {
-        
+
     if(req.body.id == '' || req.body.password == '' || req.body.name == '') {
       console.log('Undefined detected');
       res.send(JSON.stringify({"status": 404, "error": 1}))
     }  
 
 else {
+  checkconnect();
+
 
     log('POST USERS id : ' + req.body.id +' pwd : ' + req.body.password + ' name : '+ req.body.name, 'default');
 
@@ -42,6 +56,8 @@ else {
 });   
 
 router.get('/SearchUser/:id', (req:any, res:any) => {
+  checkconnect();
+
  
     const check:boolean = /^[A-Z0-9a-z]$/.test(req.params.id);
   
@@ -71,6 +87,8 @@ router.get('/SearchUser/:id', (req:any, res:any) => {
 
 
  router.post('/login', (req:any, res:any) => {
+  checkconnect();
+
     
     connection.query('SELECT password from Users WHERE id="' + req.body.id + '"', (error:any, rows:any) => {
 
