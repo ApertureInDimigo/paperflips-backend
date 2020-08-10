@@ -4,3 +4,11 @@ module.exports = {
     password: 'afca248a',
     database: 'heroku_4ca6dadd6911bbc'
 };
+/*
+ module.exports = {
+  host     : 'localhost',
+  user     : 'root',
+  password : '7334',
+  database : 'paperflips'
+};
+*/ 

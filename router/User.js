@@ -2,11 +2,12 @@
 exports.__esModule = true;
 var express = require('express');
 var router = express.Router();
+var crypto = require('crypto');
 var mysql = require('mysql'); //mysql 모듈
 var dbconfig = require('../config/database.ts'); //database 구조
 var connection = mysql.createConnection(dbconfig); //mysql 연결
 var log_1 = require("../log/log"); //로그 임포트
-var util_1 = require("util");
+var checker_1 = require("../checker");
 function checkconnect() {
     connection.on('error', function (err) {
         console.log('db error', err);
@@ -21,34 +22,40 @@ function checkconnect() {
 router.get('/users', function (req, res) {
     checkconnect();
     log_1.log('GET USERS', 'default');
-    connection.query('SELECT * from Users', function (error, rows) {
+    connection.query('SELECT id, name, password, intro, favorite, deleted_day from Users', function (error, rows) {
         if (error)
             console.log(error);
-        console.log('User info is: ', rows);
         res.send(rows);
     });
 });
 router.post('/Adduser', function (req, res) {
-    if (req.body.id == '' || req.body.password == '' || req.body.name == '') {
-        console.log('Undefined detected');
-        res.send(JSON.stringify({ "status": 404, "error": 1 }));
+    var id = req.body.id;
+    var pwd = req.body.password;
+    var name = req.body.name;
+    if (checker_1.check_id(id) && checker_1.check_pwd(pwd) && checker_1.check_name(name)) {
+        crypto.randomBytes(32, function (err, buf) {
+            crypto.pbkdf2(pwd, buf.toString('base64'), 126117, 64, 'sha512', function (err, key) {
+                var pwd = key.toString('base64');
+                var salt = buf.toString('base64');
+                log_1.log('POST USERS id : ' + id + ' pwd : ' + pwd + ' name : ' + name, 'default');
+                var data = [id, pwd, name, salt];
+                var sql = 'INSERT INTO Users (id, password, name, salt) VALUES(?, ?, ?, ?)';
+                checkconnect();
+                connection.query(sql, data, function (err, results) {
+                    if (err)
+                        console.log(err);
+                    res.send(JSON.parse('{\"status\":200}'));
+                });
+            });
+        });
     }
     else {
-        checkconnect();
-        log_1.log('POST USERS id : ' + req.body.id + ' pwd : ' + req.body.password + ' name : ' + req.body.name, 'default');
-        var data = [req.body.id, req.body.password, req.body.name];
-        var sql = 'INSERT INTO Users (id, password, name) VALUES(?, ?, ?)';
-        var query = connection.query(sql, data, function (err, results) {
-            if (err)
-                console.log(err);
-            res.send(JSON.stringify({ "status": 200, "error": null, "response": results }));
-        });
+        res.send(JSON.parse('{\"status\":404}'));
     }
 });
 router.get('/SearchUser/:id', function (req, res) {
     checkconnect();
-    var check = /^[A-Z0-9a-z]$/.test(req.params.id);
-    if (check) {
+    if (checker_1.check_id(req.params.id)) {
         connection.query('SELECT * from Users WHERE id="' + req.params.id + '"', function (error, rows) {
             if (error)
                 console.log(error);
@@ -67,33 +74,22 @@ router.get('/SearchUser/:id', function (req, res) {
 });
 router.post('/login', function (req, res) {
     checkconnect();
-    connection.query('SELECT password from Users WHERE id="' + req.body.id + '"', function (error, rows) {
-        var a = 1; //정상 처리 확인 코드
-        var e = ""; //error 코드 
-        if (error) { //sql error 발생
-            console.log(error);
-            a = 0;
-            e = "sql error";
-        }
-        else if (util_1.isUndefined(req.body.password)) { //password값이 전송 되지 않았을때...
-            a = 0;
-            e = "password undefined";
-        }
-        else if (rows[0].password != req.body.password) {
-            a = 0;
-            e = "unmatch error";
-        }
-        else {
-            a = 1;
-        }
-        console.log(e);
-        log_1.log((!e ? "success" : "failed ") + " " + req.body.id + " ", !e ? 'default' : 'error');
-        //if(e) {
-        //  log(a == 1 ? "success" : "failed" + " " + req.body.id + " " + e, a == 1 ? 'default' : 'error');
-        //} else {
-        //  log(a == 1 ? "success" : "failed" + " " + req.body.id + " " + e, a == 1 ? 'default' : 'error');
-        //}
-        res.send(JSON.stringify({ "success": a.toString() }));
-    });
+    if (checker_1.check_id(req.body.id) && checker_1.check_pwd(req.body.password)) {
+        connection.query("SELECT password, salt, name, intro, favorite, deleted_day from Users WHERE id=\"" + req.body.id + "\"", function (error, rows) {
+            if (error)
+                res.send(JSON.parse("{ \"status\" : 404}"));
+            crypto.pbkdf2(req.body.password, rows[0].salt, 126117, 64, 'sha512', function (err, key) {
+                if (key.toString('base64') == rows[0].password) {
+                    res.send(JSON.parse("\n            { \"status\" : 200,\n             \"data\" : {\n               \"id\" : \"" + req.body.id + "\",\n               \"name\" : \"" + rows[0].name + "\",\n               \"intro\" : \"" + rows[0].intro + "\",\n               \"favorite\" : \"" + rows[0].favorite + "\",\n               \"deleted_day\" : \"" + rows[0].deleted_day + "\"\n             } \n            }\n             "));
+                }
+                else {
+                    res.send(JSON.parse("{ \"status\" : 404}"));
+                }
+            });
+        });
+    }
+    else {
+        res.send(JSON.parse("{ \"status\" : 403}"));
+    }
 });
 module.exports = router;

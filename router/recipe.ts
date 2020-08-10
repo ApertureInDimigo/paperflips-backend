@@ -6,6 +6,8 @@ const mysql:any = require('mysql');       //mysql 모듈
 const dbconfig:any = require('../config/database.ts'); //database 구조
 let connection:any = mysql.createConnection(dbconfig); //mysql 연결
 
+import {check} from '../checker'
+
 
 import { log } from '../log/log';  //로그 임포트
 import { isUndefined, callbackify } from 'util';
@@ -23,11 +25,14 @@ function checkconnect() {
 
 
 router.get('/data/:seq', (req:any, res:any) => {
+
+    if(!check(req.params.seq)) {
+
     if(isUndefined(req.params.seq)) console.log('undefined');
     checkconnect();
     console.log('recipe get')
-    
-    
+    let seq:number = req.params.seq;
+    if(check(seq.toString())) {
 
     connection.query('SELECT recipeName,rarity,summary from Recipe WHERE seq=\''+req.params.seq + '\'', (error:any, rows:any) => {
      if (error) {
@@ -50,7 +55,12 @@ router.get('/data/:seq', (req:any, res:any) => {
      }
      
    });
-
+  }else {
+    res.send(JSON.parse('{\"status\" : 404}'));
+  }
+} else {
+  res.send(JSON.parse('{\"status\" : 404}'));
+}
  });
 
  module.exports = router;
