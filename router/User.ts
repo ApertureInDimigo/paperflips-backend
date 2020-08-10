@@ -56,7 +56,8 @@ router.get('/users', (req:any, res:any) => {
 
   checkconnect();
  connection.query(sql, data,(err:any, results:any) => {
-   if(err) console.log(err);
+   if(err) res.send(JSON.parse('{\"status\":404}'))
+
 
    res.send(JSON.parse('{\"status\":200}'))
  });
