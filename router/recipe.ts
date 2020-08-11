@@ -33,7 +33,7 @@ router.get('/data/:seq', (req:any, res:any) => {
     console.log('recipe get')
     let seq:number = req.params.seq;
     if(check(seq.toString())) {
-
+    checkconnect();
     connection.query('SELECT recipeName,rarity,summary from Recipe WHERE seq=\''+req.params.seq + '\'', (error:any, rows:any) => {
      if (error) {
        console.log(error);
