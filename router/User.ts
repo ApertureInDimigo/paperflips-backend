@@ -182,7 +182,7 @@ router.get('/check', (req:any, res:any) => {
               },
               secretObj.secret,
               {
-                expiresIn: '1m'
+                expiresIn: '30m'
               }
             )
 

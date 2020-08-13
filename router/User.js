@@ -125,7 +125,7 @@ router.post('/login', function (req, res) {
                         password: key.toString('base64'),
                         admin: admin_1.isAdmin(req.body.id)
                     }, secretObj.secret, {
-                        expiresIn: '1m'
+                        expiresIn: '30m'
                     });
                     res.cookie("user", token);
                     res.send(JSON.parse("\n            { \"status\" : 200,\n             \"data\" : {\n               \"id\" : \"" + req.body.id + "\",\n               \"name\" : \"" + rows[0].name + "\",\n               \"intro\" : \"" + rows[0].intro + "\",\n               \"favorite\" : \"" + rows[0].favorite + "\",\n               \"deleted_day\" : \"" + rows[0].deleted_day + "\"\n             } \n            }\n             "));
