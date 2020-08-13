@@ -2,12 +2,18 @@
 exports.__esModule = true;
 var express = require('express');
 var router = express.Router();
-var crypto = require('crypto');
+var crypto = require('crypto'); //암호화 모듈 
+var jwt = require('jsonwebtoken'); //JWT 모듈
+var secretObj = require('../config/jwt.ts'); //jwt 비밀키 
 var mysql = require('mysql'); //mysql 모듈
 var dbconfig = require('../config/database.ts'); //database 구조
 var connection = mysql.createConnection(dbconfig); //mysql 연결
+var HTTP_req_1 = require("../HTTP_req");
+var admin_1 = require("../admin"); //admin 판단을 위함 
 var log_1 = require("../log/log"); //로그 임포트
-var checker_1 = require("../checker");
+var util_1 = require("util");
+var checker_1 = require("../checker"); //정규식 체크
+/////////////////////////////// sql connect check를 위한 함수
 function checkconnect() {
     connection.on('error', function (err) {
         console.log('db error', err);
@@ -19,15 +25,36 @@ function checkconnect() {
         }
     });
 }
+/////////////      Admin 권한               ////////////////
+///////////////모든 유저 정보를 가져옴
 router.get('/users', function (req, res) {
     checkconnect();
-    log_1.log('GET USERS', 'default');
-    connection.query('SELECT id, name, password, intro, favorite, deleted_day from Users', function (error, rows) {
-        if (error)
-            console.log(error);
-        res.send(rows);
-    });
+    var token = req.headers.cookie;
+    if (!util_1.isUndefined(token)) {
+        try {
+            var decode = jwt.verify(token.substring(5, token.length), secretObj.secret);
+            var isAdmin_1 = decode.admin;
+            if (isAdmin_1) {
+                connection.query('SELECT id, name, password, intro, favorite, deleted_day from Users', function (error, rows) {
+                    if (error)
+                        console.log(error);
+                    var rowstr = JSON.stringify(rows);
+                    res.send(JSON.parse("[" + rowstr.substring(1, rowstr.length - 1) + "]"));
+                });
+            }
+            else {
+                res.send(HTTP_req_1.stat.get(403));
+            }
+        }
+        catch (e) {
+            res.send(HTTP_req_1.stat.get(404));
+        }
+    }
+    else
+        res.send(HTTP_req_1.stat.get(404));
 });
+/////////////      User  권한               ////////////////
+/////////////// 회원 가입 
 router.post('/Adduser', function (req, res) {
     var id = req.body.id;
     var pwd = req.body.password;
@@ -43,19 +70,20 @@ router.post('/Adduser', function (req, res) {
                 checkconnect();
                 connection.query(sql, data, function (err, results) {
                     if (err)
-                        console.log(err);
-                    res.send(JSON.parse('{\"status\":200}'));
+                        res.send(HTTP_req_1.stat.get(404));
+                    res.send(HTTP_req_1.stat.get(200));
                 });
             });
         });
     }
     else {
-        res.send(JSON.parse('{\"status\":404}'));
+        res.send(HTTP_req_1.stat.get(404));
     }
 });
+///////////유저 검색 Deprecation
 router.get('/SearchUser/:id', function (req, res) {
-    checkconnect();
     if (checker_1.check_id(req.params.id)) {
+        checkconnect();
         connection.query('SELECT * from Users WHERE id="' + req.params.id + '"', function (error, rows) {
             if (error)
                 console.log(error);
@@ -65,31 +93,51 @@ router.get('/SearchUser/:id', function (req, res) {
                 res.send(obj2);
             }
             catch (e) {
-                res.send(JSON.stringify({ "status": 404 }));
+                res.send(HTTP_req_1.stat.get(404));
             }
         });
     }
     else
-        res.send(JSON.stringify({ "status": 404 }));
+        res.send(HTTP_req_1.stat.get(404));
 });
+////////토큰 유효성 검사  deprecation 예정 
+router.get('/check', function (req, res) {
+    var token = req.headers.cookie;
+    var decode = jwt.verify(token.substring(5, token.length), secretObj.secret);
+    if (decode) {
+        res.send(HTTP_req_1.stat.get(200));
+    }
+    else {
+        res.send(HTTP_req_1.stat.get(404));
+    }
+});
+/////////로그인, 토큰 반환 
 router.post('/login', function (req, res) {
     checkconnect();
     if (checker_1.check_id(req.body.id) && checker_1.check_pwd(req.body.password)) {
         connection.query("SELECT password, salt, name, intro, favorite, deleted_day from Users WHERE id=\"" + req.body.id + "\"", function (error, rows) {
             if (error)
-                res.send(JSON.parse("{ \"status\" : 404}"));
+                res.send(HTTP_req_1.stat.get(404));
             crypto.pbkdf2(req.body.password, rows[0].salt, 126117, 64, 'sha512', function (err, key) {
                 if (key.toString('base64') == rows[0].password) {
+                    var token = jwt.sign({
+                        id: req.body.id,
+                        password: key.toString('base64'),
+                        admin: admin_1.isAdmin(req.body.id)
+                    }, secretObj.secret, {
+                        expiresIn: '1m'
+                    });
+                    res.cookie("user", token);
                     res.send(JSON.parse("\n            { \"status\" : 200,\n             \"data\" : {\n               \"id\" : \"" + req.body.id + "\",\n               \"name\" : \"" + rows[0].name + "\",\n               \"intro\" : \"" + rows[0].intro + "\",\n               \"favorite\" : \"" + rows[0].favorite + "\",\n               \"deleted_day\" : \"" + rows[0].deleted_day + "\"\n             } \n            }\n             "));
                 }
                 else {
-                    res.send(JSON.parse("{ \"status\" : 404}"));
+                    res.send(HTTP_req_1.stat.get(404));
                 }
             });
         });
     }
     else {
-        res.send(JSON.parse("{ \"status\" : 403}"));
+        res.send(HTTP_req_1.stat.get(403));
     }
 });
 module.exports = router;

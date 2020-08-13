@@ -6,6 +6,8 @@ var app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
+
+
 var router = require('./router/main')(app);
 
 app.set('views', __dirname + '/public');
@@ -14,7 +16,7 @@ app.engine('html', require('ejs').renderFile);
 
 var server = app.listen(process.env.PORT || 3000 , function(){
     console.log("Express server has started on port 3000");
-    console.log(process.env.PORT)
+    console.log(process.env.PORT == undefined ? process.env.PORT : " ");
 })
 
 app.use(express.static('public'));

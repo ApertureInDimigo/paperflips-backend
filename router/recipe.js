@@ -6,6 +6,7 @@ var mysql = require('mysql'); //mysql 모듈
 var dbconfig = require('../config/database.ts'); //database 구조
 var connection = mysql.createConnection(dbconfig); //mysql 연결
 var checker_1 = require("../checker");
+var HTTP_req_1 = require("../HTTP_req");
 var util_1 = require("util");
 function checkconnect() {
     connection.on('error', function (err) {
@@ -18,6 +19,7 @@ function checkconnect() {
         }
     });
 }
+//////////////////////////////카드 데이터
 router.get('/data/:seq', function (req, res) {
     if (!checker_1.check(req.params.seq)) {
         if (util_1.isUndefined(req.params.seq))
@@ -26,10 +28,11 @@ router.get('/data/:seq', function (req, res) {
         console.log('recipe get');
         var seq = req.params.seq;
         if (checker_1.check(seq.toString())) {
+            checkconnect();
             connection.query('SELECT recipeName,rarity,summary from Recipe WHERE seq=\'' + req.params.seq + '\'', function (error, rows) {
                 if (error) {
                     console.log(error);
-                    // res.send(JSON.parse('{\"status\" : 404}'));
+                    res.send(HTTP_req_1.stat.get(404));
                 }
                 console.log('recipe info is: ', rows);
                 try {
@@ -41,16 +44,16 @@ router.get('/data/:seq', function (req, res) {
                 }
                 catch (e) {
                     console.log(e);
-                    res.send(JSON.parse('{\"status\" : 404}'));
+                    res.send(HTTP_req_1.stat.get(404));
                 }
             });
         }
         else {
-            res.send(JSON.parse('{\"status\" : 404}'));
+            res.send(HTTP_req_1.stat.get(404));
         }
     }
     else {
-        res.send(JSON.parse('{\"status\" : 404}'));
+        res.send(HTTP_req_1.stat.get(404));
     }
 });
 module.exports = router;
