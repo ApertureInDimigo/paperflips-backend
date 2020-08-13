@@ -8,7 +8,7 @@ let connection:any = mysql.createConnection(dbconfig); //mysql 연결
 
 import {check} from '../checker'
 
-
+import {stat} from '../HTTP_req'
 import { log } from '../log/log';  //로그 임포트
 import { isUndefined, callbackify } from 'util';
 
@@ -23,7 +23,7 @@ function checkconnect() {
   });
 }
 
-
+//////////////////////////////카드 데이터
 router.get('/data/:seq', (req:any, res:any) => {
 
     if(!check(req.params.seq)) {
@@ -37,8 +37,8 @@ router.get('/data/:seq', (req:any, res:any) => {
     connection.query('SELECT recipeName,rarity,summary from Recipe WHERE seq=\''+req.params.seq + '\'', (error:any, rows:any) => {
      if (error) {
        console.log(error);
-      // res.send(JSON.parse('{\"status\" : 404}'));
-     }
+       res.send(stat.get(404))
+      }
      console.log('recipe info is: ', rows);
 
      try{
@@ -51,15 +51,15 @@ router.get('/data/:seq', (req:any, res:any) => {
     //  res.send(obj2);
       } catch(e) {
         console.log(e);
-       res.send(JSON.parse('{\"status\" : 404}'));
+       res.send(stat.get(404));
      }
      
    });
   }else {
-    res.send(JSON.parse('{\"status\" : 404}'));
+    res.send(stat.get(404));
   }
 } else {
-  res.send(JSON.parse('{\"status\" : 404}'));
+  res.send(stat.get(404));
 }
  });
 
