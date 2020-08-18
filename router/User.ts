@@ -1,4 +1,4 @@
-let express = require('express');  
+let express = require('express')  
 let router = express.Router();
 
 const crypto = require('crypto'); //암호화 모듈 
@@ -39,12 +39,13 @@ function checkconnect() {
 ///////////////모든 유저 정보를 가져옴
 router.get('/users', (req:any, res:any) => {
   checkconnect();
-  let token = req.headers.cookie;  //쿠키 가져오기 
+  let cookie = req.headers.cookie;  //쿠키 가져오기 
 
-  if(!isUndefined(token)) { //undefined가 아닐때..
+  if(!isUndefined(cookie)) { //undefined가 아닐때..
+    let token = cookie.substring(5, cookie.length);
 
   try {
-  let decode = jwt.verify(token.substring(5, token.length), secretObj.secret); //토큰 검증
+  let decode = jwt.verify(token, secretObj.secret); //토큰 검증
   let isAdmin:boolean = decode.admin; //관리자 여부
 
   if(isAdmin) { //관리자 일때.. 정상 프로세스
@@ -93,8 +94,11 @@ router.get('/users', (req:any, res:any) => {
 
   checkconnect(); //연결 설정 
  connection.query(sql, data,(err:any, results:any) => {
-   if(err) res.send(stat.get(404))
-   res.send(stat.get(200))
+   if(err) {
+     res.send(stat.get(404))
+     console.log(err);
+   }
+   else res.send(stat.get(200))
      });
 
 
@@ -136,6 +140,43 @@ router.get('/SearchUser/:id', (req:any, res:any) => {
   else res.send(stat.get(404))
  });
 
+
+
+ router.get('/GetMyInfo', (req:any, res:any) => {
+   let cookie = req.headers.cookie
+   let token = cookie.substring(5, cookie.length);
+
+   try{
+     let decode = jwt.verify(token, secretObj.secret)
+     if(check_id(decode.id)) {
+       let id:string = decode.id;
+      
+       checkconnect();
+       connection.query('SELECT * from Users WHERE id="' + id + '"', (error:any, rows:any) => {
+        if (error) console.log(error);
+         
+        try{
+         let obj:string = JSON.stringify(rows);
+         let obj2:any = JSON.parse(obj.substring(1, obj.length-2) + "," + "\"status\": 200}");
+         res.send(obj2);
+        } catch(e) {
+         res.send(stat.get(404));
+       }
+       
+   
+        
+      }
+      
+      
+      );
+     }
+       
+     
+   }catch (e) {
+     res.send(stat.get(404));
+   }
+ });
+
 ////////토큰 유효성 검사  deprecation 예정 
 router.get('/check', (req:any, res:any) => {
   let token = req.headers.cookie;
@@ -151,7 +192,6 @@ router.get('/check', (req:any, res:any) => {
 /////////로그인, 토큰 반환 
  router.post('/login', (req:any, res:any) => {
 
-  checkconnect();
       
     if(check_id(req.body.id) && check_pwd(req.body.password)) {
 
@@ -159,7 +199,7 @@ router.get('/check', (req:any, res:any) => {
 
       
 
-
+      checkconnect();
       connection.query(`SELECT password, salt, name, intro, favorite, deleted_day from Users WHERE id="`  + req.body.id + `"`, (error:any, rows:any) => {
       
   
