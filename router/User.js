@@ -29,10 +29,11 @@ function checkconnect() {
 ///////////////모든 유저 정보를 가져옴
 router.get('/users', function (req, res) {
     checkconnect();
-    var token = req.headers.cookie; //쿠키 가져오기 
-    if (!util_1.isUndefined(token)) { //undefined가 아닐때..
+    var cookie = req.headers.cookie; //쿠키 가져오기 
+    if (!util_1.isUndefined(cookie)) { //undefined가 아닐때..
+        var token = cookie.substring(5, cookie.length);
         try {
-            var decode = jwt.verify(token.substring(5, token.length), secretObj.secret); //토큰 검증
+            var decode = jwt.verify(token, secretObj.secret); //토큰 검증
             var isAdmin_1 = decode.admin; //관리자 여부
             if (isAdmin_1) { //관리자 일때.. 정상 프로세스
                 connection.query('SELECT id, name, password, intro, favorite, deleted_day from Users', function (error, rows) {
@@ -146,12 +147,13 @@ router.get('/check', function (req, res) {
 });
 /////////로그인, 토큰 반환 
 router.post('/login', function (req, res) {
-    checkconnect();
     if (checker_1.check_id(req.body.id) && checker_1.check_pwd(req.body.password)) {
+        checkconnect();
         connection.query("SELECT password, salt, name, intro, favorite, deleted_day from Users WHERE id=\"" + req.body.id + "\"", function (error, rows) {
             if (error)
                 res.send(HTTP_req_1.stat.get(404));
             crypto.pbkdf2(req.body.password, rows[0].salt, 126117, 64, 'sha512', function (err, key) {
+                console.log(key.toString('base64') == rows[0].password);
                 if (key.toString('base64') == rows[0].password) {
                     var token = jwt.sign({
                         id: req.body.id,

@@ -207,8 +207,10 @@ router.get('/check', (req:any, res:any) => {
   
 
         crypto.pbkdf2(req.body.password , rows[0].salt, 126117, 64, 'sha512', (err:any, key:any) => {
-
+           
+          console.log(key.toString('base64') == rows[0].password);
           if(key.toString('base64') == rows[0].password) {
+            
             let token = jwt.sign(
               {
                 id : req.body.id,
