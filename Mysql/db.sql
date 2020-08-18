@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS Users (
   intro VARCHAR(300),
   favorite VARCHAR(500),
   deleted_day VARCHAR(30)
+  salt VARCHAR()
 );
 
 

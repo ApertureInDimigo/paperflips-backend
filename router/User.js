@@ -29,12 +29,12 @@ function checkconnect() {
 ///////////////모든 유저 정보를 가져옴
 router.get('/users', function (req, res) {
     checkconnect();
-    var token = req.headers.cookie;
-    if (!util_1.isUndefined(token)) {
+    var token = req.headers.cookie; //쿠키 가져오기 
+    if (!util_1.isUndefined(token)) { //undefined가 아닐때..
         try {
-            var decode = jwt.verify(token.substring(5, token.length), secretObj.secret);
-            var isAdmin_1 = decode.admin;
-            if (isAdmin_1) {
+            var decode = jwt.verify(token.substring(5, token.length), secretObj.secret); //토큰 검증
+            var isAdmin_1 = decode.admin; //관리자 여부
+            if (isAdmin_1) { //관리자 일때.. 정상 프로세스
                 connection.query('SELECT id, name, password, intro, favorite, deleted_day from Users', function (error, rows) {
                     if (error)
                         console.log(error);
@@ -42,7 +42,7 @@ router.get('/users', function (req, res) {
                     res.send(JSON.parse("[" + rowstr.substring(1, rowstr.length - 1) + "]"));
                 });
             }
-            else {
+            else { //관리자 일때.. 권한 없음 
                 res.send(HTTP_req_1.stat.get(403));
             }
         }
@@ -56,22 +56,29 @@ router.get('/users', function (req, res) {
 /////////////      User  권한               ////////////////
 /////////////// 회원 가입 
 router.post('/Adduser', function (req, res) {
+    //////////////////////id, password, name 필드 
     var id = req.body.id;
     var pwd = req.body.password;
     var name = req.body.name;
+    ///////////정규식 체크(SQL Injection 방지)
     if (checker_1.check_id(id) && checker_1.check_pwd(pwd) && checker_1.check_name(name)) {
+        //32바이트의 랜덤 문자열 생성(salt)
         crypto.randomBytes(32, function (err, buf) {
+            //salt를 이용한 pwd 암호화
             crypto.pbkdf2(pwd, buf.toString('base64'), 126117, 64, 'sha512', function (err, key) {
-                var pwd = key.toString('base64');
-                var salt = buf.toString('base64');
+                var pwd = key.toString('base64'); //암호화한 pwd 
+                var salt = buf.toString('base64'); //랜덤 문자열 salt
                 log_1.log('POST USERS id : ' + id + ' pwd : ' + pwd + ' name : ' + name, 'default');
                 var data = [id, pwd, name, salt];
                 var sql = 'INSERT INTO Users (id, password, name, salt) VALUES(?, ?, ?, ?)';
-                checkconnect();
+                checkconnect(); //연결 설정 
                 connection.query(sql, data, function (err, results) {
-                    if (err)
+                    if (err) {
                         res.send(HTTP_req_1.stat.get(404));
-                    res.send(HTTP_req_1.stat.get(200));
+                        console.log(err);
+                    }
+                    else
+                        res.send(HTTP_req_1.stat.get(200));
                 });
             });
         });
@@ -100,6 +107,32 @@ router.get('/SearchUser/:id', function (req, res) {
     else
         res.send(HTTP_req_1.stat.get(404));
 });
+router.get('/GetMyInfo', function (req, res) {
+    var cookie = req.headers.cookie;
+    var token = cookie.substring(5, cookie.length);
+    try {
+        var decode = jwt.verify(token, secretObj.secret);
+        if (checker_1.check_id(decode.id)) {
+            var id = decode.id;
+            checkconnect();
+            connection.query('SELECT * from Users WHERE id="' + id + '"', function (error, rows) {
+                if (error)
+                    console.log(error);
+                try {
+                    var obj = JSON.stringify(rows);
+                    var obj2 = JSON.parse(obj.substring(1, obj.length - 2) + "," + "\"status\": 200}");
+                    res.send(obj2);
+                }
+                catch (e) {
+                    res.send(HTTP_req_1.stat.get(404));
+                }
+            });
+        }
+    }
+    catch (e) {
+        res.send(HTTP_req_1.stat.get(404));
+    }
+});
 ////////토큰 유효성 검사  deprecation 예정 
 router.get('/check', function (req, res) {
     var token = req.headers.cookie;
@@ -122,7 +155,6 @@ router.post('/login', function (req, res) {
                 if (key.toString('base64') == rows[0].password) {
                     var token = jwt.sign({
                         id: req.body.id,
-                        password: key.toString('base64'),
                         admin: admin_1.isAdmin(req.body.id)
                     }, secretObj.secret, {
                         expiresIn: '30m'
