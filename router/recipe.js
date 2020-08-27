@@ -21,7 +21,7 @@ function checkconnect() {
 }
 //////////////////////////////카드 데이터
 router.get('/data/:seq', function (req, res) {
-    if (!checker_1.check(req.params.seq)) {
+    if (checker_1.check(req.params.seq)) {
         if (util_1.isUndefined(req.params.seq))
             console.log('undefined');
         checkconnect();
@@ -53,6 +53,7 @@ router.get('/data/:seq', function (req, res) {
         }
     }
     else {
+        console.log('error');
         res.send(HTTP_req_1.stat.get(404));
     }
 });

@@ -8,6 +8,11 @@ let secretObj = require('../config/jwt.ts'); //jwt 비밀키
 
 const mysql:any = require('mysql');       //mysql 모듈
 const dbconfig:any = require('../config/database.ts'); //database 구조
+const moment:any = require('moment')
+
+require('moment-timezone');
+moment.tz.setDefault("Asia/Seoul");
+
 
 
 
@@ -68,6 +73,98 @@ router.get('/users', (req:any, res:any) => {
    });
 
 /////////////      User  권한               ////////////////
+
+//////////////컬렉션 레시피들 가져오기
+
+
+router.get('/GetCollection', (req:any, res:any) => {
+  let cookie = req.headers.cookie
+   let token = cookie.substring(5, cookie.length);
+
+   try{
+     let decode = jwt.verify(token, secretObj.secret)
+     if(check_id(decode.id)) {
+       let id:string = decode.id;
+      
+       checkconnect();
+       connection.query(`SELECT rec.recipeName, rec.rarity, rec.summary, c.Date FROM Recipe AS rec JOIN Collection AS c ON c.rec_num = rec.seq AND c.id = '${id}'`, (error:any, rows:any) => {
+        if (error) console.log(error);
+         
+        try{
+         let obj:string = JSON.stringify(rows);
+         console.log(`{ "data" : { ${obj.substring(1, obj.length - 2)} }, "status" : 200}`);
+         
+         let obj2:any = JSON.parse(`{ "data" : [ ${obj.substring(1, obj.length - 1)}] , "status" : 200}`);
+         
+         
+         res.send(obj2);
+        } catch(e) {
+          console.log(e);
+         res.send(stat.get(404));
+       }
+       
+   
+        
+      }
+      
+      
+      );
+     }
+       
+     
+   }catch (e) {
+     res.send(stat.get(404));
+   }
+})
+
+////////////////컬렉션 추가
+
+router.post('/AddCollection/:cId', (req:any, res:any) => {
+  console.log(req.params.cId);
+  if(check(req.params.cId)) {
+    let Addobject = req.params.cId;
+    let cookie = req.headers.cookie;
+    let token = cookie.substring(5, cookie.length);
+
+    try{
+      let decode = jwt.verify(token, secretObj.secret);
+      if(check_id(decode.id)) {
+        let id:string = decode.id;
+
+       checkconnect();
+       connection.query(`SELECT * FROM Collection WHERE id='${id}' AND rec_num=${Addobject}`, (error:any, rows:any) => {        
+         console.log(rows.length);
+         let a = rows;
+        
+         if(rows.length != 0) res.send(stat.get(404));
+         else {
+           try{
+            checkconnect();
+            connection.query(`INSERT INTO Collection (id, rec_num, Date) VALUES ('${id}', ${Addobject}, '${moment().format('YYYY-MM-DD')}')`, (error:any, rows:any) => {
+              if(error) {
+                console.log(error);
+                res.send(stat.get(404));
+              } else res.send(stat.get(200));
+            })
+           }catch(e) {
+             res.send(stat.get(404));
+           }
+         }
+       })
+
+
+        
+      }
+    }catch(e) {
+      res.send(stat.get(404))
+    }
+  } else {
+    res.send(stat.get(404));
+  }
+})
+
+
+
 
 /////////////// 회원 가입 
    router.post('/Adduser',(req:any, res:any) => {
@@ -209,6 +306,8 @@ router.get('/check', (req:any, res:any) => {
         crypto.pbkdf2(req.body.password , rows[0].salt, 126117, 64, 'sha512', (err:any, key:any) => {
            
           console.log(key.toString('base64') == rows[0].password);
+          console.log(key.toString('base64'));
+          console.log(rows[0].password)
           if(key.toString('base64') == rows[0].password) {
             
             let token = jwt.sign(

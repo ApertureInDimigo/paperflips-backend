@@ -10,5 +10,4 @@ module.exports = {
   user     : 'root',
   password : '7334',
   database : 'paperflips'
-};
-*/ 
+};*/ 
