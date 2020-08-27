@@ -7,6 +7,9 @@ var jwt = require('jsonwebtoken'); //JWT 모듈
 var secretObj = require('../config/jwt.ts'); //jwt 비밀키 
 var mysql = require('mysql'); //mysql 모듈
 var dbconfig = require('../config/database.ts'); //database 구조
+var moment = require('moment');
+require('moment-timezone');
+moment.tz.setDefault("Asia/Seoul");
 var connection = mysql.createConnection(dbconfig); //mysql 연결
 var HTTP_req_1 = require("../HTTP_req");
 var admin_1 = require("../admin"); //admin 판단을 위함 
@@ -55,6 +58,79 @@ router.get('/users', function (req, res) {
         res.send(HTTP_req_1.stat.get(404));
 });
 /////////////      User  권한               ////////////////
+//////////////컬렉션 레시피들 가져오기
+router.get('/GetCollection', function (req, res) {
+    var cookie = req.headers.cookie;
+    var token = cookie.substring(5, cookie.length);
+    try {
+        var decode = jwt.verify(token, secretObj.secret);
+        if (checker_1.check_id(decode.id)) {
+            var id = decode.id;
+            checkconnect();
+            connection.query("SELECT rec.recipeName, rec.rarity, rec.summary, c.Date FROM Recipe AS rec JOIN Collection AS c ON c.rec_num = rec.seq AND c.id = '" + id + "'", function (error, rows) {
+                if (error)
+                    console.log(error);
+                try {
+                    var obj = JSON.stringify(rows);
+                    console.log("{ \"data\" : { " + obj.substring(1, obj.length - 2) + " }, \"status\" : 200}");
+                    var obj2 = JSON.parse("{ \"data\" : [ " + obj.substring(1, obj.length - 1) + "] , \"status\" : 200}");
+                    res.send(obj2);
+                }
+                catch (e) {
+                    console.log(e);
+                    res.send(HTTP_req_1.stat.get(404));
+                }
+            });
+        }
+    }
+    catch (e) {
+        res.send(HTTP_req_1.stat.get(404));
+    }
+});
+////////////////컬렉션 추가
+router.post('/AddCollection/:cId', function (req, res) {
+    console.log(req.params.cId);
+    if (checker_1.check(req.params.cId)) {
+        var Addobject_1 = req.params.cId;
+        var cookie = req.headers.cookie;
+        var token = cookie.substring(5, cookie.length);
+        try {
+            var decode = jwt.verify(token, secretObj.secret);
+            if (checker_1.check_id(decode.id)) {
+                var id_1 = decode.id;
+                checkconnect();
+                connection.query("SELECT * FROM Collection WHERE id='" + id_1 + "' AND rec_num=" + Addobject_1, function (error, rows) {
+                    console.log(rows.length);
+                    var a = rows;
+                    if (rows.length != 0)
+                        res.send(HTTP_req_1.stat.get(404));
+                    else {
+                        try {
+                            checkconnect();
+                            connection.query("INSERT INTO Collection (id, rec_num, Date) VALUES ('" + id_1 + "', " + Addobject_1 + ", '" + moment().format('YYYY-MM-DD') + "')", function (error, rows) {
+                                if (error) {
+                                    console.log(error);
+                                    res.send(HTTP_req_1.stat.get(404));
+                                }
+                                else
+                                    res.send(HTTP_req_1.stat.get(200));
+                            });
+                        }
+                        catch (e) {
+                            res.send(HTTP_req_1.stat.get(404));
+                        }
+                    }
+                });
+            }
+        }
+        catch (e) {
+            res.send(HTTP_req_1.stat.get(404));
+        }
+    }
+    else {
+        res.send(HTTP_req_1.stat.get(404));
+    }
+});
 /////////////// 회원 가입 
 router.post('/Adduser', function (req, res) {
     //////////////////////id, password, name 필드 
@@ -154,6 +230,8 @@ router.post('/login', function (req, res) {
                 res.send(HTTP_req_1.stat.get(404));
             crypto.pbkdf2(req.body.password, rows[0].salt, 126117, 64, 'sha512', function (err, key) {
                 console.log(key.toString('base64') == rows[0].password);
+                console.log(key.toString('base64'));
+                console.log(rows[0].password);
                 if (key.toString('base64') == rows[0].password) {
                     var token = jwt.sign({
                         id: req.body.id,

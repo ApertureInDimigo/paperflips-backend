@@ -26,7 +26,7 @@ function checkconnect() {
 //////////////////////////////카드 데이터
 router.get('/data/:seq', (req:any, res:any) => {
 
-    if(!check(req.params.seq)) {
+    if(check(req.params.seq)) {
 
     if(isUndefined(req.params.seq)) console.log('undefined');
     checkconnect();
@@ -59,6 +59,7 @@ router.get('/data/:seq', (req:any, res:any) => {
     res.send(stat.get(404));
   }
 } else {
+  console.log('error')
   res.send(stat.get(404));
 }
  });
