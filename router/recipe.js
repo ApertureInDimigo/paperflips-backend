@@ -19,6 +19,26 @@ function checkconnect() {
         }
     });
 }
+router.get('/AllData', function (req, res) {
+    connection.query('SELECT recipeName,rarity,summary from Recipe', function (error, rows) {
+        if (error) {
+            console.log(error);
+            res.send(HTTP_req_1.stat.get(404));
+        }
+        console.log('recipe info is: ', rows);
+        try {
+            var obj = JSON.stringify(rows);
+            // let obj2:any = JSON.parse( "{" + obj + "," + "\"status\": 200}");
+            var obj2 = JSON.parse("{ \"data\" : [ " + obj.substring(1, obj.length - 1) + "] , \"status\" : 200, \"length\" : " + rows.length + "}");
+            res.send(obj2);
+            //  res.send(obj2);
+        }
+        catch (e) {
+            console.log(e);
+            res.send(HTTP_req_1.stat.get(404));
+        }
+    });
+});
 //////////////////////////////카드 데이터
 router.get('/data/:seq', function (req, res) {
     if (checker_1.check(req.params.seq)) {
