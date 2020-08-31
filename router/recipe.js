@@ -20,6 +20,7 @@ function checkconnect() {
     });
 }
 router.get('/AllData', function (req, res) {
+    checkconnect();
     connection.query('SELECT recipeName,rarity,summary from Recipe', function (error, rows) {
         if (error) {
             console.log(error);
