@@ -140,7 +140,7 @@ router.post('/AddCollection/:cId', (req:any, res:any) => {
          else {
            try{
             checkconnect();
-            connection.query(`INSERT INTO Collection (id, rec_num, Date) VALUES ('${id}', ${Addobject}, '${moment().format('YYYY-MM-DD')}')`, (error:any, rows:any) => {
+            connection.query(`INSERT INTO Collection (id, rec_num, Date) VALUES ('${id}', ${Addobject}, '${moment().format('YYYY-MM-DD HH:mm:ss')}')`, (error:any, rows:any) => {
               if(error) {
                 console.log(error);
                 res.send(stat.get(404));

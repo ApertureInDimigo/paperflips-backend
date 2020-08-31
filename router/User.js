@@ -107,7 +107,7 @@ router.post('/AddCollection/:cId', function (req, res) {
                     else {
                         try {
                             checkconnect();
-                            connection.query("INSERT INTO Collection (id, rec_num, Date) VALUES ('" + id_1 + "', " + Addobject_1 + ", '" + moment().format('YYYY-MM-DD') + "')", function (error, rows) {
+                            connection.query("INSERT INTO Collection (id, rec_num, Date) VALUES ('" + id_1 + "', " + Addobject_1 + ", '" + moment().format('YYYY-MM-DD HH:mm:ss') + "')", function (error, rows) {
                                 if (error) {
                                     console.log(error);
                                     res.send(HTTP_req_1.stat.get(404));
