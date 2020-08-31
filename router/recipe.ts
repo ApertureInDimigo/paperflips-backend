@@ -25,6 +25,7 @@ function checkconnect() {
 
 
 router.get('/AllData', (req:any, res:any) => {
+  checkconnect();
   connection.query('SELECT recipeName,rarity,summary from Recipe', (error:any, rows:any) => {
     if (error) {
       console.log(error);
