@@ -26,7 +26,7 @@ function checkconnect() {
 router.post('/Search', (req:any, res:any) => {
   checkconnect();
   let recipe:string = req.body.recipe;
-  connection.query(`SELECT recipeName, rarity, summary from Recipe WHERE LIKE '%${recipe}%'`, (error:any, rows:any) => {
+  connection.query(`SELECT recipeName, rarity, summary from Recipe WHERE recipeName LIKE '%${recipe}%'`, (error:any, rows:any) => {
     if(error) {
       console.log(error);
       res.send(stat.get(404));
