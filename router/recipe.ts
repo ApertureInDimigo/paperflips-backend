@@ -23,12 +23,40 @@ function checkconnect() {
   });
 }
 
+router.get('/Search', (req:any, res:any) => {
+  checkconnect();
+  let recipe:string = req.body.recipe;
+  connection.query(`SELECT recipeName, rarity, summary from Recipe WHERE LIKE %${recipe}%`, (error:any, rows:any) => {
+    if(error) {
+      console.log(error);
+      res.send(stat.get(404));
+    }
+
+    try{
+      let obj:string = JSON.stringify(rows);
+     // let obj2:any = JSON.parse( "{" + obj + "," + "\"status\": 200}");
+    
+      let obj2:any = JSON.parse(`{ "data" : [ ${obj.substring(1, obj.length - 1)}] , "status" : 200, "length" : ${rows.length}}`);
+
+      res.send(obj2);
+   //  res.send(obj2);
+     } catch(e) {
+       console.log(e);
+      res.send(stat.get(402));
+    }
+
+
+  })
+}
+)
+
 
 router.get('/AllData', (req:any, res:any) => {
   checkconnect();
   connection.query('SELECT recipeName,rarity,summary from Recipe', (error:any, rows:any) => {
     if (error) {
       console.log(error);
+      console.log('recipe info is: ', rows);
       res.send(stat.get(404))
      }
     console.log('recipe info is: ', rows);
@@ -43,7 +71,7 @@ router.get('/AllData', (req:any, res:any) => {
    //  res.send(obj2);
      } catch(e) {
        console.log(e);
-      res.send(stat.get(404));
+      res.send(stat.get(402));
     }
     
   });
