@@ -22,7 +22,7 @@ function checkconnect() {
 router.post('/Search', function (req, res) {
     checkconnect();
     var recipe = req.body.recipe;
-    connection.query("SELECT recipeName, rarity, summary from Recipe WHERE LIKE %" + recipe + "%", function (error, rows) {
+    connection.query("SELECT recipeName, rarity, summary from Recipe WHERE LIKE '%" + recipe + "%'", function (error, rows) {
         if (error) {
             console.log(error);
             res.send(HTTP_req_1.stat.get(404));
