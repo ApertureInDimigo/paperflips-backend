@@ -168,7 +168,7 @@ router.post('/Adduser', function (req, res) {
 router.get('/SearchUser/:id', function (req, res) {
     if (checker_1.check_id(req.params.id)) {
         checkconnect();
-        connection.query('SELECT * from Users WHERE id="' + req.params.id + '"', function (error, rows) {
+        connection.query('SELECT id,name,intro,favorite from Users WHERE id="' + req.params.id + '"', function (error, rows) {
             if (error)
                 console.log(error);
             try {

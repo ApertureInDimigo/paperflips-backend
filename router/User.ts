@@ -214,7 +214,7 @@ router.get('/SearchUser/:id', (req:any, res:any) => {
      if(check_id(req.params.id)) {
    checkconnect();
 
-   connection.query('SELECT * from Users WHERE id="' + req.params.id + '"', (error:any, rows:any) => {
+   connection.query('SELECT id,name,intro,favorite from Users WHERE id="' + req.params.id + '"', (error:any, rows:any) => {
      if (error) console.log(error);
 
      
