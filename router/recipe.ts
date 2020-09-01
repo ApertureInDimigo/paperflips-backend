@@ -23,7 +23,7 @@ function checkconnect() {
   });
 }
 
-router.get('/Search', (req:any, res:any) => {
+router.post('/Search', (req:any, res:any) => {
   checkconnect();
   let recipe:string = req.body.recipe;
   connection.query(`SELECT recipeName, rarity, summary from Recipe WHERE LIKE %${recipe}%`, (error:any, rows:any) => {
