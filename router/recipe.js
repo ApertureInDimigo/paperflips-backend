@@ -30,8 +30,13 @@ router.post('/Search', function (req, res) {
         try {
             var obj = JSON.stringify(rows);
             // let obj2:any = JSON.parse( "{" + obj + "," + "\"status\": 200}");
-            var obj2 = JSON.parse("{ \"data\" : [ " + obj.substring(1, obj.length - 1) + "] , \"status\" : 200, \"length\" : " + rows.length + "}");
-            res.send(obj2);
+            if (rows.length == 0) {
+                res.send(HTTP_req_1.stat.get(404));
+            }
+            else {
+                var obj2 = JSON.parse("{ \"data\" : [ " + obj.substring(1, obj.length - 1) + "] , \"status\" : 200, \"length\" : " + rows.length + "}");
+                res.send(obj2);
+            }
             //  res.send(obj2);
         }
         catch (e) {

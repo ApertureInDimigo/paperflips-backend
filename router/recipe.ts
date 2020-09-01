@@ -35,10 +35,12 @@ router.post('/Search', (req:any, res:any) => {
     try{
       let obj:string = JSON.stringify(rows);
      // let obj2:any = JSON.parse( "{" + obj + "," + "\"status\": 200}");
-    
+      if(rows.length == 0) {
+        res.send(stat.get(404));
+      } else {
       let obj2:any = JSON.parse(`{ "data" : [ ${obj.substring(1, obj.length - 1)}] , "status" : 200, "length" : ${rows.length}}`);
-
       res.send(obj2);
+      }
    //  res.send(obj2);
      } catch(e) {
        console.log(e);
