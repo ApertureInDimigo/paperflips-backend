@@ -22,7 +22,7 @@ function checkconnect() {
 router.post('/Search', function (req, res) {
     checkconnect();
     var recipe = req.body.recipe;
-    connection.query("SELECT recipeName, rarity, summary from Recipe WHERE recipeName LIKE '%" + recipe + "%'", function (error, rows) {
+    connection.query("SELECT seq, recipeName, rarity, summary from Recipe WHERE recipeName LIKE '%" + recipe + "%'", function (error, rows) {
         if (error) {
             console.log(error);
             res.send(HTTP_req_1.stat.get(404));
@@ -47,7 +47,7 @@ router.post('/Search', function (req, res) {
 });
 router.get('/AllData', function (req, res) {
     checkconnect();
-    connection.query('SELECT recipeName,rarity,summary from Recipe', function (error, rows) {
+    connection.query('SELECT seq, recipeName,rarity,summary from Recipe', function (error, rows) {
         if (error) {
             console.log(error);
             console.log('recipe info is: ', rows);
