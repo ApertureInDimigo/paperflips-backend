@@ -92,7 +92,7 @@ router.get('/GetCollection', (req:any, res:any) => {
        let id:string = decode.id;
       
        checkconnect();
-       connection.query(`SELECT rec.recipeName, rec.rarity, rec.summary, c.Date FROM Recipe AS rec JOIN Collection AS c ON c.rec_num = rec.seq AND c.id = '${id}'`, (error:any, rows:any) => {
+       connection.query(`SELECT rec.seq ,rec.recipeName, rec.rarity, rec.summary, c.Date FROM Recipe AS rec JOIN Collection AS c ON c.rec_num = rec.seq AND c.id = '${id}'`, (error:any, rows:any) => {
         if (error) console.log(error);
          
         try{

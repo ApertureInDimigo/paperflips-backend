@@ -70,7 +70,7 @@ router.get('/GetCollection', function (req, res) {
         if (checker_1.check_id(decode.id)) {
             var id = decode.id;
             checkconnect();
-            connection.query("SELECT rec.recipeName, rec.rarity, rec.summary, c.Date FROM Recipe AS rec JOIN Collection AS c ON c.rec_num = rec.seq AND c.id = '" + id + "'", function (error, rows) {
+            connection.query("SELECT rec.seq ,rec.recipeName, rec.rarity, rec.summary, c.Date FROM Recipe AS rec JOIN Collection AS c ON c.rec_num = rec.seq AND c.id = '" + id + "'", function (error, rows) {
                 if (error)
                     console.log(error);
                 try {
