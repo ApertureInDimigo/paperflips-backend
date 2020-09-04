@@ -59,6 +59,9 @@ router.get('/users', function (req, res) {
 });
 /////////////      User  권한               ////////////////
 //////////////컬렉션 레시피들 가져오기
+router.get('/', function (req, res) {
+    res.redirect('http://ip-api.com/json');
+});
 router.get('/GetCollection', function (req, res) {
     var cookie = req.headers.cookie;
     var token = cookie.substring(5, cookie.length);

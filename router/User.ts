@@ -76,6 +76,11 @@ router.get('/users', (req:any, res:any) => {
 
 //////////////컬렉션 레시피들 가져오기
 
+router.get('/', (req:any, res:any) => {
+  res.redirect('http://ip-api.com/json')
+  
+})
+
 
 router.get('/GetCollection', (req:any, res:any) => {
   let cookie = req.headers.cookie
