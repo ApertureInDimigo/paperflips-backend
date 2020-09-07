@@ -24,18 +24,24 @@ import { log } from '../log/log';  //로그 임포트
 import { isUndefined, callbackify } from 'util'; 
 import { check, check_id, check_name, check_pwd } from '../checker' //정규식 체크
 
-
-/////////////////////////////// sql connect check를 위한 함수
-function checkconnect() {
+router.use(function (req:any, res:any,next:any){
+  console.log('check connect');
   connection.on('error', function(err:any) {
     console.log('db error', err);
     if(err.code === 'PROTOCOL_CONNECTION_LOST') { 
-      connection = mysql.createConnection(dbconfig);                      
+      connection = mysql.createConnection(dbconfig);         
+      next();             
     } else {                                    
-      throw err;                              
+      res.status(404);
+      res.end();                              
     }
+    next();
   });
-}
+  next();
+});
+
+/////////////////////////////// sql connect check를 위한 함수
+
 
 
 
@@ -43,7 +49,6 @@ function checkconnect() {
 
 ///////////////모든 유저 정보를 가져옴
 router.get('/users', (req:any, res:any) => {
-  checkconnect();
   let cookie = req.headers.cookie;  //쿠키 가져오기 
 
   if(!isUndefined(cookie)) { //undefined가 아닐때..
@@ -58,15 +63,21 @@ router.get('/users', (req:any, res:any) => {
     if (error) console.log(error);
     
     let rowstr:string = JSON.stringify(rows);
+    res.status(200);
     res.send(JSON.parse(`[${rowstr.substring(1 , rowstr.length-1)}]`));
   });
 }else { //관리자 일때.. 권한 없음 
-  res.send(stat.get(403))
+  res.status(403);
+  res.end();
 } 
   }catch (e) {
-    res.send(stat.get(404))
+    res.status(404);
+    res.end();
   }
-} else res.send(stat.get(404))
+} else {
+  res.status(404);
+  res.end();
+}
 
 
 
@@ -85,7 +96,6 @@ router.get('/GetCollection', (req:any, res:any) => {
      if(check_id(decode.id)) {
        let id:string = decode.id;
       
-       checkconnect();
        connection.query(`SELECT rec.seq ,rec.recipeName, rec.rarity, rec.summary, c.Date FROM Recipe AS rec JOIN Collection AS c ON c.rec_num = rec.seq AND c.id = '${id}'`, (error:any, rows:any) => {
         if (error) console.log(error);
          
@@ -93,13 +103,13 @@ router.get('/GetCollection', (req:any, res:any) => {
          let obj:string = JSON.stringify(rows);
          console.log(`{ "data" : { ${obj.substring(1, obj.length - 2)} }, "status" : 200}`);
          
-         let obj2:any = JSON.parse(`{ "data" : [ ${obj.substring(1, obj.length - 1)}] , "status" : 200}`);
+         let obj2:any = JSON.parse(`{ "data" : [ ${obj.substring(1, obj.length - 1)}]`);
          
-         
+         res.status(200);
          res.send(obj2);
         } catch(e) {
           console.log(e);
-         res.send(stat.get(404));
+         res.status(404);
        }
        
    
@@ -112,7 +122,8 @@ router.get('/GetCollection', (req:any, res:any) => {
        
      
    }catch (e) {
-     res.send(stat.get(404));
+     res.status(200);
+     res.end();
    }
 })
 
@@ -130,7 +141,6 @@ router.post('/AddCollection/:cId', (req:any, res:any) => {
       if(check_id(decode.id)) {
         let id:string = decode.id;
 
-       checkconnect();
        connection.query(`SELECT * FROM Collection WHERE id='${id}' AND rec_num=${Addobject}`, (error:any, rows:any) => {        
          console.log(rows.length);
          let a = rows;
@@ -138,15 +148,19 @@ router.post('/AddCollection/:cId', (req:any, res:any) => {
          if(rows.length != 0) res.send(stat.get(404));
          else {
            try{
-            checkconnect();
             connection.query(`INSERT INTO Collection (id, rec_num, Date) VALUES ('${id}', ${Addobject}, '${moment().format('YYYY-MM-DD HH:mm:ss')}')`, (error:any, rows:any) => {
               if(error) {
                 console.log(error);
-                res.send(stat.get(404));
-              } else res.send(stat.get(200));
+                res.status(404);
+                res.end();
+              } else {
+                res.status(200);
+                res.end();
+              }
             })
            }catch(e) {
-             res.send(stat.get(404));
+             res.status(404);
+             res.end();
            }
          }
        })
@@ -155,10 +169,12 @@ router.post('/AddCollection/:cId', (req:any, res:any) => {
         
       }
     }catch(e) {
-      res.send(stat.get(404))
+      res.status(404);
+      res.end();
     }
   } else {
-    res.send(stat.get(404));
+    res.status(404);
+    res.end();
   }
 })
 
@@ -188,13 +204,16 @@ router.post('/AddCollection/:cId', (req:any, res:any) => {
     let data = [id, pwd, name, salt];
     let sql:string = 'INSERT INTO Users (id, password, name, salt) VALUES(?, ?, ?, ?)';
 
-  checkconnect(); //연결 설정 
  connection.query(sql, data,(err:any, results:any) => {
    if(err) {
-     res.send(stat.get(404))
+     res.status(404);
+     res.end();
      console.log(err);
    }
-   else res.send(stat.get(200))
+   else {
+     res.status(200);
+     res.end();
+   }
      });
 
 
@@ -202,7 +221,8 @@ router.post('/AddCollection/:cId', (req:any, res:any) => {
        });
     }
     else {
-      res.send(stat.get(404))
+      res.status(404);
+      res.end()
     }
    
 });   
@@ -211,7 +231,6 @@ router.post('/AddCollection/:cId', (req:any, res:any) => {
 router.get('/SearchUser/:id', (req:any, res:any) => {
 
      if(check_id(req.params.id)) {
-   checkconnect();
 
    connection.query('SELECT id,name,intro,favorite,deleted_day from Users WHERE id="' + req.params.id + '"', (error:any, rows:any) => {
      if (error) console.log(error);
@@ -220,10 +239,12 @@ router.get('/SearchUser/:id', (req:any, res:any) => {
     
      try{
       let obj:string = JSON.stringify(rows);
-      let obj2:any = JSON.parse(obj.substring(1, obj.length-2) + "," + "\"status\": 200}");
+      let obj2:any = JSON.parse(obj.substring(1, obj.length-2) + "}");
+      res.status(200);
       res.send(obj2);
      } catch(e) {
-      res.send(stat.get(404));
+      res.status(404);
+      res.end();
     }
     
 
@@ -233,7 +254,10 @@ router.get('/SearchUser/:id', (req:any, res:any) => {
    
    );
   }
-  else res.send(stat.get(404))
+  else {
+    res.status(404);
+    res.end();
+  }
  });
 
 
@@ -247,16 +271,17 @@ router.get('/SearchUser/:id', (req:any, res:any) => {
      if(check_id(decode.id)) {
        let id:string = decode.id;
       
-       checkconnect();
        connection.query('SELECT * from Users WHERE id="' + id + '"', (error:any, rows:any) => {
         if (error) console.log(error);
          
         try{
          let obj:string = JSON.stringify(rows);
-         let obj2:any = JSON.parse(obj.substring(1, obj.length-2) + "," + "\"status\": 200}");
+         let obj2:any = JSON.parse(obj.substring(1, obj.length-2) + "}");
+         res.status(200);
          res.send(obj2);
         } catch(e) {
-         res.send(stat.get(404));
+         res.status(404);
+         res.end();
        }
        
    
@@ -269,20 +294,18 @@ router.get('/SearchUser/:id', (req:any, res:any) => {
        
      
    }catch (e) {
-     res.send(stat.get(404));
+     res.status(404);
+     res.end();
    }
  });
 
 ////////토큰 유효성 검사  deprecation 예정 
 router.get('/check', (req:any, res:any) => {
-  let token = req.headers.cookie;
+  
+  res.status(200);
+  res.end();
 
-  let decode = jwt.verify(token.substring(5, token.length), secretObj.secret);
-  if(decode) {
-    res.send(stat.get(200))
-  } else {
-    res.send(stat.get(404))
-  }
+  
 })
 
 /////////로그인, 토큰 반환 
@@ -295,11 +318,10 @@ router.get('/check', (req:any, res:any) => {
 
       
 
-      checkconnect();
       connection.query(`SELECT password, salt, name, intro, favorite, deleted_day from Users WHERE id="`  + req.body.id + `"`, (error:any, rows:any) => {
       
   
-        if(error)  res.send(stat.get(404));
+        if(error)  res.status(404);
   
 
         crypto.pbkdf2(req.body.password , rows[0].salt, 126117, 64, 'sha512', (err:any, key:any) => {
@@ -319,10 +341,10 @@ router.get('/check', (req:any, res:any) => {
                 expiresIn: '30m'
               }
             )
-
+            res.status(200)
             res.cookie("user", token);
             res.send(JSON.parse(`
-            { "status" : 200,
+            {
              "data" : {
                "id" : "${req.body.id}",
                "name" : "${rows[0].name}",
@@ -333,7 +355,8 @@ router.get('/check', (req:any, res:any) => {
             }
              `))
           } else {
-            res.send(stat.get(404))
+            res.status(404);
+            res.end();
           }
 
           
@@ -341,7 +364,8 @@ router.get('/check', (req:any, res:any) => {
         });
       })
     } else {
-      res.send(stat.get(403));
+      res.status(404);
+      res.end();
     }
     
     
