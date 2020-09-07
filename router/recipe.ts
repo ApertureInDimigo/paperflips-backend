@@ -13,6 +13,7 @@ import { log } from '../log/log';  //로그 임포트
 import { isUndefined, callbackify } from 'util';
 
 function checkconnect() {
+  console.log('check connect');
   connection.on('error', function(err:any) {
     console.log('db error', err);
     if(err.code === 'PROTOCOL_CONNECTION_LOST') { 
@@ -23,28 +24,47 @@ function checkconnect() {
   });
 }
 
+router.use(function (req:any, res:any,next:any){
+  console.log('check connect');
+  connection.on('error', function(err:any) {
+    console.log('db error', err);
+    if(err.code === 'PROTOCOL_CONNECTION_LOST') { 
+      connection = mysql.createConnection(dbconfig);         
+      next();             
+    } else {                                    
+      res.status(404);
+      res.end();                              
+    }
+    next();
+  });
+  next();
+});
+
 router.post('/Search', (req:any, res:any) => {
-  checkconnect();
   let recipe:string = req.body.recipe;
   connection.query(`SELECT seq, recipeName, rarity, summary from Recipe WHERE recipeName LIKE '%${recipe}%'`, (error:any, rows:any) => {
     if(error) {
       console.log(error);
-      res.send(stat.get(404));
+      res.status(404);
+      res.end();
     }
 
     try{
       let obj:string = JSON.stringify(rows);
      // let obj2:any = JSON.parse( "{" + obj + "," + "\"status\": 200}");
       if(rows.length == 0) {
-        res.send(stat.get(404));
+        res.status(404);
+        res.end();
       } else {
-      let obj2:any = JSON.parse(`{ "data" : [ ${obj.substring(1, obj.length - 1)}] , "status" : 200, "length" : ${rows.length}}`);
+      let obj2:any = JSON.parse(`{ "data" : [ ${obj.substring(1, obj.length - 1)}] , "length" : ${rows.length}}`);
+      res.status(200);
       res.send(obj2);
       }
    //  res.send(obj2);
      } catch(e) {
        console.log(e);
-      res.send(stat.get(402));
+      res.status(404);
+      res.end();
     }
 
 
@@ -54,26 +74,27 @@ router.post('/Search', (req:any, res:any) => {
 
 
 router.get('/AllData', (req:any, res:any) => {
-  checkconnect();
   connection.query('SELECT seq, recipeName,rarity,summary from Recipe', (error:any, rows:any) => {
     if (error) {
       console.log(error);
       console.log('recipe info is: ', rows);
-      res.send(stat.get(404))
+      res.status(404);
+      res.end();
      }
     console.log('recipe info is: ', rows);
 
     try{
       let obj:string = JSON.stringify(rows);
      // let obj2:any = JSON.parse( "{" + obj + "," + "\"status\": 200}");
-    
-      let obj2:any = JSON.parse(`{ "data" : [ ${obj.substring(1, obj.length - 1)}] , "status" : 200, "length" : ${rows.length}}`);
-
+      
+      let obj2:any = JSON.parse(`{ "data" : [ ${obj.substring(1, obj.length - 1)}] , length" : ${rows.length}}`);
+      res.status(200);
       res.send(obj2);
    //  res.send(obj2);
      } catch(e) {
        console.log(e);
-      res.send(stat.get(402));
+      res.status(404);
+      res.end();
     }
     
   });
@@ -94,30 +115,34 @@ router.get('/data/:seq', (req:any, res:any) => {
     connection.query('SELECT recipeName,rarity,summary from Recipe WHERE seq=\''+req.params.seq + '\'', (error:any, rows:any) => {
      if (error) {
        console.log(error);
-       res.send(stat.get(404))
+       res.status(404);
+       res.end();
       }
      console.log('recipe info is: ', rows);
 
      try{
        let obj:string = JSON.stringify(rows);
       // let obj2:any = JSON.parse( "{" + obj + "," + "\"status\": 200}");
-       let obj2:any = JSON.parse("{" + "\"data\":" + obj.substring(1, obj.length - 1) + "," +"\"status\": 200" + "}");
+       let obj2:any = JSON.parse("{" + "\"data\":" + obj.substring(1, obj.length - 1) + "}");
      
-
+       res.status(200);
        res.send(obj2);
     //  res.send(obj2);
       } catch(e) {
         console.log(e);
-       res.send(stat.get(404));
+        res.status(404);
+        res.end();
      }
      
    });
   }else {
-    res.send(stat.get(404));
+    res.status(404);
+    res.end();
   }
 } else {
   console.log('error')
-  res.send(stat.get(404));
+  res.status(404);
+  res.end();
 }
  });
 
