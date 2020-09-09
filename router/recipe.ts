@@ -2,148 +2,106 @@ let express = require('express');
 let router = express.Router();
 
 
+
+
 const mysql:any = require('mysql');       //mysql 모듈
 const dbconfig:any = require('../config/database.ts'); //database 구조
 let connection:any = mysql.createConnection(dbconfig); //mysql 연결
+let logs_ = require('../Bot/botplay');
 
-import {check} from '../checker'
-
-import {stat} from '../HTTP_req'
-import { log } from '../log/log';  //로그 임포트
-import { isUndefined, callbackify } from 'util';
-
-function checkconnect() {
-  console.log('check connect');
-  connection.on('error', function(err:any) {
-    console.log('db error', err);
-    if(err.code === 'PROTOCOL_CONNECTION_LOST') { 
-      connection = mysql.createConnection(dbconfig);                      
-    } else {                                    
-      throw err;                              
-    }
-  });
-}
+import {check, check_name} from '../util/checker'
+import { isUndefined } from 'util';
 
 router.use(function (req:any, res:any,next:any){
-  console.log('check connect');
   connection.on('error', function(err:any) {
-    console.log('db error', err);
     if(err.code === 'PROTOCOL_CONNECTION_LOST') { 
       connection = mysql.createConnection(dbconfig);         
       next();             
-    } else {                                    
-      res.status(404);
-      res.end();                              
+    } else {                    
+      logs_("sql connection error")                
+      res.status(404).end()                            
     }
     next();
   });
   next();
 });
 
-router.post('/Search', (req:any, res:any) => {
-  let recipe:string = req.body.recipe;
+
+
+router.get('/Search', (req:any, res:any) => {
+  let recipe:string = req.query.q;
+
+  if(!check_name(recipe)) {
+    res.status(404).end()
+  }
+  try {
   connection.query(`SELECT seq, recipeName, rarity, summary from Recipe WHERE recipeName LIKE '%${recipe}%'`, (error:any, rows:any) => {
     if(error) {
-      console.log(error);
-      res.status(404);
-      res.end();
+      logs_(error);
+      res.status(404).end()
     }
-
-    try{
-      let obj:string = JSON.stringify(rows);
-     // let obj2:any = JSON.parse( "{" + obj + "," + "\"status\": 200}");
       if(rows.length == 0) {
-        res.status(404);
-        res.end();
-      } else {
-      let obj2:any = JSON.parse(`{ "data" : [ ${obj.substring(1, obj.length - 1)}] , "length" : ${rows.length}}`);
-      res.status(200);
-      res.send(obj2);
-      }
-   //  res.send(obj2);
-     } catch(e) {
-       console.log(e);
-      res.status(404);
-      res.end();
-    }
-
-
+        res.status(404).end()
+      } 
+      let raw_data:string = JSON.stringify(rows);
+      let data:any = JSON.parse(`{ "data" : [ ${raw_data.substring(1, raw_data.length - 1)}] , "length" : ${rows.length}}`);
+      res.status(200).send(data)
   })
+ }catch (e) {
+   logs_(e);
+   res.status(404).end();
+ }
 }
 )
 
 
 router.get('/AllData', (req:any, res:any) => {
-  connection.query('SELECT seq, recipeName,rarity,summary from Recipe', (error:any, rows:any) => {
-    if (error) {
-      console.log(error);
-      console.log('recipe info is: ', rows);
-      res.status(404);
-      res.end();
-     }
-    console.log('recipe info is: ', rows);
 
-    try{
-      let obj:string = JSON.stringify(rows);
-     // let obj2:any = JSON.parse( "{" + obj + "," + "\"status\": 200}");
-      
-      let obj2:any = JSON.parse(`{ "data" : [ ${obj.substring(1, obj.length - 1)}] , length" : ${rows.length}}`);
-      res.status(200);
-      res.send(obj2);
-   //  res.send(obj2);
-     } catch(e) {
-       console.log(e);
-      res.status(404);
-      res.end();
-    }
-    
-  });
+  try{
+    connection.query('SELECT seq, recipeName,rarity,summary from Recipe', (error:any, rows:any) => {
+      if (error) {
+        logs_(error)
+
+        res.status(404).end()
+       }
+       let raw_data:string = JSON.stringify(rows);      
+       let data:any = JSON.parse(`{ "data" : [ ${raw_data.substring(1, raw_data.length - 1)}] , length" : ${rows.length}}`);
+        res.status(200).send(data)
+    });
+  } catch(e) {
+    logs_(e);
+    res.status(404).end()
+  }
+  
 })
 
 
 //////////////////////////////카드 데이터
-router.get('/data/:seq', (req:any, res:any) => {
+router.get('/data/:seq', (req:any, res:any) => {  
+  let seq:number = req.params.seq;
 
-    if(check(req.params.seq)) {
-
-    if(isUndefined(req.params.seq)) console.log('undefined');
-    checkconnect();
-    console.log('recipe get')
-    let seq:number = req.params.seq;
     if(check(seq.toString())) {
-    checkconnect();
+
+      try{
     connection.query('SELECT recipeName,rarity,summary from Recipe WHERE seq=\''+req.params.seq + '\'', (error:any, rows:any) => {
      if (error) {
-       console.log(error);
-       res.status(404);
-       res.end();
+       logs_(error);
+       res.status(404).end();
       }
-     console.log('recipe info is: ', rows);
-
-     try{
        let obj:string = JSON.stringify(rows);
-      // let obj2:any = JSON.parse( "{" + obj + "," + "\"status\": 200}");
        let obj2:any = JSON.parse("{" + "\"data\":" + obj.substring(1, obj.length - 1) + "}");
      
-       res.status(200);
-       res.send(obj2);
-    //  res.send(obj2);
-      } catch(e) {
-        console.log(e);
-        res.status(404);
-        res.end();
-     }
+       res.status(200).send(obj2);
      
    });
+  } catch(e) {
+    logs_(e);
+    res.status(404).end()
+ }
   }else {
-    res.status(404);
-    res.end();
+    res.status(404).end();
   }
-} else {
-  console.log('error')
-  res.status(404);
-  res.end();
-}
+
  });
 
  module.exports = router;
