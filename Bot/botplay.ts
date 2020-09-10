@@ -5,13 +5,12 @@ let data = require('../config/bot_data')
 
 Cl.on('ready', () => {
   channel = Cl.channels.cache.get(data.ID);
-  channel.send('BOT LOGIN')
 })
 
 Cl.login(data.token);
 
 function logs_(str:string) {
-    channel.send(str);
+    channel.send(`ERROR 발생!! 내용 : ${str} \n @everyone`);
 }
 
 
