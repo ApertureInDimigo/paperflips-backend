@@ -64,8 +64,8 @@ router.get('/AllData', (req:any, res:any) => {
 
         res.status(404).end()
        }
-       let raw_data:string = JSON.stringify(rows);      
-       let data:any = JSON.parse(`{ "data" : [ ${raw_data.substring(1, raw_data.length - 1)}] , length" : ${rows.length}}`);
+       let raw_data:string = JSON.stringify(rows);
+       let data:any = JSON.parse(`{ "data" : [ ${raw_data.substring(1, raw_data.length - 1)} ], "length" : ${rows.length}}`);
         res.status(200).send(data)
     });
   } catch(e) {
