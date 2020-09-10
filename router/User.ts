@@ -19,6 +19,7 @@ let connection:any = mysql.createConnection(dbconfig); //mysql 연결
 
 import {isAdmin} from '../util/admin' //admin 판단을 위함 
 import { check, check_id, check_name, check_pwd } from '../util/checker' //정규식 체크
+import { isUndefined } from 'util';
 
 router.use(function (req:any, res:any,next:any){
   connection.on('error', function(err:any) {
@@ -77,7 +78,13 @@ router.get('/users', (req:any, res:any) => {
 /////////////      User  권한               ////////////////
 
 router.get('/GetCollection', (req:any, res:any) => { //컬렉션 레시피들 가져오기
+
   let cookie = req.headers.cookie
+
+
+if(isUndefined(cookie)) {
+  res.status(401).end()
+} else {
   let decode;
 
    try{
@@ -110,26 +117,30 @@ router.get('/GetCollection', (req:any, res:any) => { //컬렉션 레시피들 �
      logs_(e);
      res.status(404).end();
    }
+  }
 })
 
 ////////////////컬렉션 추가
 
 router.post('/AddCollection/:cId', (req:any, res:any) => {
-  if(check(req.params.cId)) {
+  if(!check(req.params.cId)) {
     res.status(404).end()
   }
+  let Recipe_seq = req.params.cId; //추가할 레시피 seq
+  let cookie = req.headers.cookie; 
+  console.log(isUndefined(cookie));
+  
+  if(isUndefined(cookie)) {
+    res.status(401).end();
+  } else {
+    
     try{
-      let Recipe_seq = req.params.cId; //추가할 레시피 seq
-      let cookie = req.headers.cookie; 
+      
       let token = cookie.substring(5, cookie.length);  
-      let decode;
-
-      try{
-        decode =  jwt.verify(token, secretObj.secret);
-      }catch(err) {
-        res.status(401).end()
-      }
-
+      let decode =  jwt.verify(token, secretObj.secret);
+      
+        
+        
 
       let id:string = decode.id;
 
@@ -153,6 +164,10 @@ router.post('/AddCollection/:cId', (req:any, res:any) => {
        logs_(e);
       res.status(404).end();
     }
+  }
+  
+    
+    
 })
 
 
@@ -224,8 +239,16 @@ router.get('/SearchUser/:id', (req:any, res:any) => {
 
 
 router.get('/GetMyInfo', (req:any, res:any) => {
+  let cookie = req.headers.cookie
+   
+  if(isUndefined(cookie)) {
+    res.status(401).end()
+  } else {
+
+  
+
+
    try{
-    let cookie = req.headers.cookie
     let token = cookie.substring(5, cookie.length);
  
     
@@ -257,6 +280,7 @@ router.get('/GetMyInfo', (req:any, res:any) => {
      logs_(e);
      res.status(404).end()
    }
+  }
  });
 
 //////// 디코 봇 서버 상태 확인을 위함..
