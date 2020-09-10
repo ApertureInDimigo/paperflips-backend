@@ -44,7 +44,12 @@ router.get('/users', (req:any, res:any) => {
 
   try {
   let token = cookie.substring(5, cookie.length); //토큰 부분    user=<token> 형식
-  let decode = jwt.verify(token, secretObj.secret); //토큰 검증
+  let decode;
+  try{
+    decode = jwt.verify(token, secretObj.secret); //토큰 검증
+  }catch(err) {
+     res.status(401).end()
+  }
   let isAdmin:boolean = decode.admin; //관리자 여부
 
   if(isAdmin) { //관리자 일때.. 정상 프로세스
@@ -73,10 +78,16 @@ router.get('/users', (req:any, res:any) => {
 
 router.get('/GetCollection', (req:any, res:any) => { //컬렉션 레시피들 가져오기
   let cookie = req.headers.cookie
+  let decode;
 
    try{
     let token = cookie.substring(5, cookie.length);
-     let decode = jwt.verify(token, secretObj.secret)
+
+    try{
+      decode = jwt.verify(token, secretObj.secret)
+    }catch(err) {
+      res.status(401).end()
+    }
      if(!check_id(decode.id)) {
           res.status(404).end()
       }
@@ -111,7 +122,15 @@ router.post('/AddCollection/:cId', (req:any, res:any) => {
       let Recipe_seq = req.params.cId; //추가할 레시피 seq
       let cookie = req.headers.cookie; 
       let token = cookie.substring(5, cookie.length);  
-      let decode = jwt.verify(token, secretObj.secret);
+      let decode;
+
+      try{
+        decode =  jwt.verify(token, secretObj.secret);
+      }catch(err) {
+        res.status(401).end()
+      }
+
+
       let id:string = decode.id;
 
       if(!check_id(id)) {
@@ -208,8 +227,16 @@ router.get('/GetMyInfo', (req:any, res:any) => {
    try{
     let cookie = req.headers.cookie
     let token = cookie.substring(5, cookie.length);
-    let decode = jwt.verify(token, secretObj.secret)
+ 
+    
 
+    let decode;
+
+    try{
+      decode =  jwt.verify(token, secretObj.secret);
+    }catch(err) {
+      res.status(401).end()
+    }
      if(!check_id(decode.id)) {
        res.status(404).end()
       }
@@ -289,5 +316,10 @@ try{
   res.status(404).end();
 }
   }); 
+
+
+ 
+  
+
 
  module.exports = router;
