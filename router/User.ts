@@ -80,43 +80,52 @@ router.get('/users', (req:any, res:any) => {
 router.get('/GetCollection', (req:any, res:any) => { //컬렉션 레시피들 가져오기
 
   let cookie = req.headers.cookie
+  let token
 
 
 if(isUndefined(cookie)) {
   res.status(401).end()
 } else {
   let decode;
-
-   try{
-    let token = cookie.substring(5, cookie.length);
+    
 
     try{
+      token = cookie.substring(5, cookie.length)
       decode = jwt.verify(token, secretObj.secret)
     }catch(err) {
       res.status(401).end()
+      return;
     }
-     if(!check_id(decode.id)) {
-          res.status(404).end()
-      }
 
-       let id:string = decode.id;
       
-       connection.query(`SELECT rec.seq ,rec.recipeName, rec.rarity, rec.summary, c.Date FROM Recipe AS rec JOIN Collection AS c ON c.rec_num = rec.seq AND c.id = '${id}'`, (error:any, rows:any) => {
-          if (error) {
-          logs_(error)
-          res.status(404).end()
-        }
-         
-        
-         let raw_data:string = JSON.stringify(rows)
-         let data:any = JSON.parse(`{ "data" : [ ${raw_data.substring(1, raw_data.length - 1)}]}`);
-         
-         res.status(200).send(data);
-      });
-   }catch (e) {
-     logs_(e);
-     res.status(404).end();
-   }
+    try{
+      if(!check_id(decode.id)) {
+        res.status(404).end()
+        return;
+    }
+
+     let id:string = decode.id;
+    
+     connection.query(`SELECT rec.seq ,rec.recipeName, rec.rarity, rec.summary, c.Date FROM Recipe AS rec JOIN Collection AS c ON c.rec_num = rec.seq AND c.id = '${id}'`, (error:any, rows:any) => {
+        if (error) {
+        logs_(error)
+        res.status(404).end()
+      }
+       
+      
+       let raw_data:string = JSON.stringify(rows)
+       let data:any = JSON.parse(`{ "data" : [ ${raw_data.substring(1, raw_data.length - 1)}]}`);
+       
+       res.status(200).send(data);
+    });
+    }catch(e) {
+      logs_(e);
+      res.status(404).end()
+    }
+
+
+     
+   
   }
 })
 
@@ -133,15 +142,17 @@ router.post('/AddCollection/:cId', (req:any, res:any) => {
   if(isUndefined(cookie)) {
     res.status(401).end();
   } else {
+    let decode;
     
     try{
-      
       let token = cookie.substring(5, cookie.length);  
-      let decode =  jwt.verify(token, secretObj.secret);
+      decode =  jwt.verify(token, secretObj.secret);
+    }catch(e) {
+      res.status(401).end();
+    }
       
-        
-        
-
+      
+      try{
       let id:string = decode.id;
 
       if(!check_id(id)) {
@@ -245,41 +256,42 @@ router.get('/GetMyInfo', (req:any, res:any) => {
     res.status(401).end()
   } else {
 
-  
-
-
-   try{
-    let token = cookie.substring(5, cookie.length);
- 
-    
-
+    let token;
     let decode;
 
     try{
+      token = cookie.substring(5, cookie.length);
       decode =  jwt.verify(token, secretObj.secret);
-    }catch(err) {
-      res.status(401).end()
+    }catch(e) {
+      res.status(401).end();
+      return;
     }
-     if(!check_id(decode.id)) {
-       res.status(404).end()
-      }
 
-       let id:string = decode.id;
-       connection.query('SELECT * from Users WHERE id="' + id + '"', (error:any, rows:any) => {
-        if (error) {
-          logs_(error);
-          res.status(404).end()
-        }
+    try{
+      if(!check_id(decode.id)) {
+        res.status(404).end()
+        return;
+       }
+ 
+        let id:string = decode.id;
+        connection.query('SELECT * from Users WHERE id="' + id + '"', (error:any, rows:any) => {
+         if (error) {
+           logs_(error);
+           res.status(404).end()
+         }
+          
          
-        
-         let raw_data:string = JSON.stringify(rows)
-         let data:any = JSON.parse(raw_data.substring(1, raw_data.length-2) + "}")
-         res.status(200).send(data)
-      });
-   }catch (e) {
-     logs_(e);
-     res.status(404).end()
-   }
+          let raw_data:string = JSON.stringify(rows)
+          let data:any = JSON.parse(raw_data.substring(1, raw_data.length-2) + "}")
+          res.status(200).send(data)
+       });
+    }catch(e) {
+       res.status(404).end();
+       logs_(e);
+       return;
+    }
+     
+   
   }
  });
 
@@ -341,8 +353,42 @@ try{
 }
   }); 
 
+/*
+ router.post('/AddRoom', (req:any, res:any) => {
+   let cookie = req.headers.cookie;
+   let cookie = req.headers.cookie
+   
+  if(isUndefined(cookie)) {
+    res.status(401).end()
+  } else {
 
+  
+
+
+   try{
+    let token = cookie.substring(5, cookie.length);
  
+    
+
+    let decode;
+
+    try{
+      decode =  jwt.verify(token, secretObj.secret);
+    }catch(err) {
+      res.status(401).end()
+    }
+     if(!check_id(decode.id)) {
+       res.status(404).end()
+      }
+       
+      
+   }catch (e) {
+     logs_(e);
+     res.status(404).end()
+   }
+  }
+ })
+ */
   
 
 
