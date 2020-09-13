@@ -52,7 +52,8 @@ CREATE TABLE IF NOT EXISTS Recipe (
    seq INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
    recipeName VARCHAR(10),
    rarity VARCHAR(8), 
-   summary VARCHAR(30)
+   summary VARCHAR(30),
+   detail VARCHAR(800)
 );
 
 
@@ -68,3 +69,19 @@ CREATE TABLE IF NOT EXISTS Collection (
    rec_num INT(11) NOT NULL
 
 );
+
+
+CREATE TABLE RoomInfo(
+   seq INT(11) NOT NULL auto_increment primary key,
+   title varchar(20) NOT NULL,
+   id varchar(20) NOT NULL,
+   `date` datetime NOT NULL,
+   `Data` varchar(800) NOT NULL
+);
+
+CREATE TABLE Recipe_Detail(
+   recipeName varchar(10) NOT NULL primary key,
+   detail varchar(800),
+   VidPath varchar(50),
+   ImgPath varchar(50)
+);	
