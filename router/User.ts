@@ -26,9 +26,8 @@ router.use(function (req:any, res:any,next:any){
     if(err.code === 'PROTOCOL_CONNECTION_LOST') { 
       connection = mysql.createConnection(dbconfig);         
       next();             
-    } else {                      
-      logs_("sql connection error")      
-      res.status(404).end();                              
+    } else {
+      next();                       
     }
     next();
   });
@@ -43,14 +42,15 @@ router.use(function (req:any, res:any,next:any){
 router.get('/users', (req:any, res:any) => {
   let cookie = req.headers.cookie;  //쿠키 가져오기 
 
-  try {
-  let token = cookie.substring(5, cookie.length); //토큰 부분    user=<token> 형식
+  let token;
   let decode;
   try{
+    token = cookie.substring(5, cookie.length); //토큰 부분    user=<token> 형식
     decode = jwt.verify(token, secretObj.secret); //토큰 검증
   }catch(err) {
      res.status(401).end()
   }
+try {
   let isAdmin:boolean = decode.admin; //관리자 여부
 
   if(isAdmin) { //관리자 일때.. 정상 프로세스
@@ -58,21 +58,24 @@ router.get('/users', (req:any, res:any) => {
     if (error) { //에러 발생
       logs_(error);
       res.status(404).end();
+      return;
     }
 
     let raw_data:string = JSON.stringify(rows); //가공 안된 데이터
     let data = JSON.parse(`[${raw_data.substring(1, raw_data.length-1)}]`) //json 배열 형태로 가공
 
     res.status(200).send(data); //데이터 전송
+    return;
 
     });
     }else {
     res.status(403).end();
+    return;
     } 
-      }catch (e) {
-    logs_(e);
+  }catch(e) {
     res.status(404).end();
   }
+      
 });
 
 /////////////      User  권한               ////////////////
@@ -389,6 +392,115 @@ try{
   }
  })
  */
+
+ router.post('/NewRoom', (req:any, res:any) => {
+   let cookie = req.headers.cookie;
+   let token;
+   let decode;
+   try{
+     token = cookie.substring(5, cookie.length);
+     decode = jwt.verify(token, secretObj.secret);
+   }catch(e) {
+     res.status(401).end();
+     return;
+   }
+
+
+
+
+   try {
+     
+   let input = {
+    title : req.body.title,
+    id : decode.id,
+    date: moment().format('YYYY-MM-DD HH:mm:ss'),
+    Data : JSON.stringify(req.body.data)
+  }
+
+     connection.query(`INSERT INTO RoomInfo (title, id, date, Data) VALUES ('${input.title}', '${input.id}', '${input.date}', '${input.Data}')`, (err:any, rows:any) => {
+        if(err) {
+          res.status(404).end();
+          console.log(err);
+          return;
+        }
+
+        res.status(200).end();
+        return;
+        console.log(rows);
+     });
+   }catch(e) {
+     res.status(404).end();
+     return;
+   }
+ })
+
+ router.get('/myRoom', (req:any, res:any) => {
+   let cookie = req.headers.cookie;
+   let token;
+   let decode;
+   try{
+     token = cookie.substring(5, cookie.length);
+     decode = jwt.verify(token, secretObj.secret);
+   } catch(e) {
+     res.status(401).end()
+     return;
+   }
+ 
+   try{
+
+   
+   connection.query(`SELECT seq, title, date, Data FROM RoomInfo WHERE id='${decode.id}'`, (err:any ,rows:any) => {
+     if(err) {
+       res.status(404).end();
+       console.log(err);
+       return;
+     }
+
+     if(rows.length == 0) {
+       res.status(204).end();
+       return;
+     }
+     
+    
+    for(let i = 0; i<rows.length; i++) {
+      rows[i].Data = JSON.parse(rows[i].Data);
+    }
+
+     res.status(200).send(rows)
+     return;
+    
+   })
+  } catch(e) {
+    logs_(e);
+    res.status(404).end();
+  }
+ })
+
+router.put('/RoomDataChange/:seq', (req:any, res:any) => {
+  let cookie = req.headers.cookie;
+  let token;
+  let decode;
+  try{
+    token = cookie.substring(5, cookie.length);
+    decode = jwt.verify(token, secretObj.secret);
+  } catch(e) {
+    res.status(401).end()
+    return;
+  }
+
+  try{
+     connection.query(`UPDATE RoomInfo SET Data='${JSON.stringify(req.body.Data)}' WHERE seq='${req.params.seq}'`);
+
+     res.status(200).end();
+     return;
+  }catch(e) {
+    logs_(e);
+    res.status(404).end()
+    return;
+  }
+  
+})
+
   
 
 
