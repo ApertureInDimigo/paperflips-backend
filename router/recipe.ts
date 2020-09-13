@@ -124,7 +124,8 @@ router.post('/Upload',upload.single('img'), (req:any, res:any) => {
         
        upload_to_server('recipe_img', fname);
        connection.query(`UPDATE Recipe SET path='${host}/recipe_img/${seq}${path.extname(req.file.originalname)}'`);
-
+       res.status(200).end();
+       return;
       })
 
 
