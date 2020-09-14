@@ -241,8 +241,9 @@ router.get('/SearchUser/:id', (req:any, res:any) => {
      try{
       let raw_data:string = JSON.stringify(rows);
       let data:any = JSON.parse(raw_data.substring(1, raw_data.length-2) + "}");
-      res.status(200).end(data);
+      res.status(200).send(data);
      } catch(e) {
+       console.log(e);
        logs_(e);
       res.status(404).end();
     }
