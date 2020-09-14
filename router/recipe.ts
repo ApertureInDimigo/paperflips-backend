@@ -230,7 +230,7 @@ router.get('/data/:seq', (req:any, res:any) => {
 
  });
 
-router.post('/AddDetail/:recipeName', (res:any, req:any) => {
+router.post('/AddDetail/:recipeName', (req:any, res:any) => {
 
   let cookie = req.headers.cookie;  //쿠키 가져오기 
   let token;
