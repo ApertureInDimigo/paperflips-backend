@@ -84,6 +84,7 @@ router.post('/Upload',upload.single('img'), (req:any, res:any) => {
     decode = jwt.verify(token, secretObj.secret); //토큰 검증
   }catch(err) {
      res.status(401).end()
+     return;
   }
 
   try{
@@ -119,7 +120,7 @@ router.post('/Upload',upload.single('img'), (req:any, res:any) => {
         
         let fname:string = seq + path.extname(result.originalname);
         fs.rename('images/' + req.file.originalname, 'images/'+ seq + path.extname(req.file.originalname), function(err : any) {
-          console.log('success changename')
+            
         })  
         
        upload_to_server('recipe_img', fname);
@@ -127,9 +128,9 @@ router.post('/Upload',upload.single('img'), (req:any, res:any) => {
        res.status(200).end();
        return;
       })
-
-
-
+  
+     
+       
     }
 
 
@@ -185,14 +186,17 @@ router.get('/AllData', (req:any, res:any) => {
         logs_(error)
 
         res.status(404).end()
+        return;
        }
        let raw_data:string = JSON.stringify(rows);
        let data:any = JSON.parse(`{ "data" : [ ${raw_data.substring(1, raw_data.length - 1)} ], "length" : ${rows.length}}`);
+
         res.status(200).send(data)
     });
   } catch(e) {
     logs_(e);
     res.status(404).end()
+    return;
   }
   
 })
