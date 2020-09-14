@@ -260,4 +260,17 @@ router.post('/AddDetail/:recipeName', (req:any, res:any) => {
    }
 })
 
+router.get('/GetDetail/:recipeName', (req:any, res:any) => {
+  try{
+connection.query(`SELECT * FROM Recipe_Detail WHERE recipeName='${req.params.recipeName}'` ,(error:any, rows:any) => {
+  res.status(200).send(rows[0]);
+  return;
+})
+  }catch(e) {
+    console.log(e);
+    logs_(e);
+    res.status(404).end();
+  }
+})
+
  module.exports = router;
