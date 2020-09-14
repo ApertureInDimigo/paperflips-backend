@@ -109,7 +109,7 @@ if(isUndefined(cookie)) {
 
      let id:string = decode.id;
     
-     connection.query(`SELECT rec.seq ,rec.recipeName, rec.rarity, rec.summary, c.Date FROM Recipe AS rec JOIN Collection AS c ON c.rec_num = rec.seq AND c.id = '${id}'`, (error:any, rows:any) => {
+     connection.query(`SELECT rec.seq ,rec.recipeName, rec.rarity, rec.summary,rec.path ,c.Date FROM Recipe AS rec JOIN Collection AS c ON c.rec_num = rec.seq AND c.id = '${id}'`, (error:any, rows:any) => {
         if (error) {
         logs_(error)
         res.status(404).end()
@@ -461,7 +461,7 @@ try{
        return;
      }
      
-    
+     
     for(let i = 0; i<rows.length; i++) {
       rows[i].Data = JSON.parse(rows[i].Data);
     }
