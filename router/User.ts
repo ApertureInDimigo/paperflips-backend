@@ -357,42 +357,6 @@ try{
 }
   }); 
 
-/*
- router.post('/AddRoom', (req:any, res:any) => {
-   let cookie = req.headers.cookie;
-   let cookie = req.headers.cookie
-   
-  if(isUndefined(cookie)) {
-    res.status(401).end()
-  } else {
-
-  
-
-
-   try{
-    let token = cookie.substring(5, cookie.length);
- 
-    
-
-    let decode;
-
-    try{
-      decode =  jwt.verify(token, secretObj.secret);
-    }catch(err) {
-      res.status(401).end()
-    }
-     if(!check_id(decode.id)) {
-       res.status(404).end()
-      }
-       
-      
-   }catch (e) {
-     logs_(e);
-     res.status(404).end()
-   }
-  }
- })
- */
 
  router.post('/NewRoom', (req:any, res:any) => {
    let cookie = req.headers.cookie;
