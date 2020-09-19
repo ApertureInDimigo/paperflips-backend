@@ -154,23 +154,28 @@ router.get('/Search', (req:any, res:any) => {
 
   if(!check_name(recipe)) {
     res.status(404).end()
+    return;
   }
   try {
   connection.query(`SELECT seq, recipeName, rarity, summary from Recipe WHERE recipeName LIKE '%${recipe}%'`, (error:any, rows:any) => {
     if(error) {
       logs_(error);
       res.status(404).end()
+      return;
     }
       if(rows.length == 0) {
         res.status(404).end()
+        return;
       } 
       let raw_data:string = JSON.stringify(rows);
       let data:any = JSON.parse(`{ "data" : [ ${raw_data.substring(1, raw_data.length - 1)}] , "length" : ${rows.length}}`);
       res.status(200).send(data)
+      return
   })
  }catch (e) {
    logs_(e);
    res.status(404).end();
+   return
  }
 }
 )
