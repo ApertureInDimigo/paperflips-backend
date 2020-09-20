@@ -200,6 +200,7 @@ router.post('/Adduser',(req:any, res:any) => {
     ///////////정규식 체크(SQL Injection 방지)
     if(!check_id(data.id) || !check_pwd(data.pwd) || !check_name(data.name) ) {
       res.status(404).end()
+      return;
     }
     
       //32바이트의 랜덤 문자열 생성(salt)
