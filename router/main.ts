@@ -15,8 +15,8 @@ module.exports = function(app:any)
 
       //restful API 구현부
       
-      app.get('/recipe_step', (req:any, res:any) => {
+      app.get('/privacy', (req:any, res:any) => {
         
-        res.render('index.html')
+        res.render('privacy.html')
       });
 }
