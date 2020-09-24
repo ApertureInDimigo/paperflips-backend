@@ -3,15 +3,13 @@
 let UserRouter:any = require('./User')
 let ImageRouter:any = require('./image')
 let recipeRouter:any = require('./recipe')
-let bulletinRouter:any = require('./bulletin')
 
 module.exports = function(app:any)
 
 {     
-      app.use('/User',UserRouter)
-      app.use('/img', ImageRouter)
-      app.use('/rec', recipeRouter)
-      app.use('/bul', bulletinRouter)
+      app.use('/User',UserRouter) //유저 관련 라우터
+      app.use('/img', ImageRouter) //이미지 관련 라우터
+      app.use('/rec', recipeRouter) //레시피 관련 라우터
 
       //restful API 구현부
       
