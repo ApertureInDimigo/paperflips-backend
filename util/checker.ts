@@ -1,5 +1,5 @@
 const exp:RegExp = /^[0-9]+$/;
-const exp_id:RegExp = /^[A-Za-z]{1}[A-Za-z0-9]{6,12}$/;         
+const exp_id:RegExp = /^[A-Za-z]{1}[A-Za-z0-9]{5,11}$/;         
 const exp_name:RegExp = /^[A-Z0-9a-z가-힣]+$/
 const exp_pwd:RegExp = /^.*(?=^.{8,15}$)(?=.*\d)(?=.*[a-zA-Z])(?=.*[!@#$%^&+=]).*$/;  //8~15자리 
 
