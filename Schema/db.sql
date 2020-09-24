@@ -3,6 +3,57 @@ CREATE DATABASE IF NOT EXISTS paperflips;
 
 USE paperflips;
 
+-----------------------사용하는 DB
+
+-- Users(유저 정보) TABLE
+CREATE TABLE IF NOT EXISTS Users (
+  id VARCHAR(20) NOT NULL PRIMARY KEY,
+  name VARCHAR(30) NOT NULL,
+  password VARCHAR(200) NOT NULL,
+  intro VARCHAR(300),
+  favorite VARCHAR(500),
+  deleted_day VARCHAR(30)
+  salt VARCHAR()
+);
+
+
+CREATE TABLE IF NOT EXISTS Recipe (
+   seq INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+   recipeName VARCHAR(10) NOT NULL,
+   rarity VARCHAR(8) NOT NULL, 
+   summary VARCHAR(30),
+   path varchar(100)
+);
+
+
+CREATE TABLE IF NOT EXISTS Collection (
+   id VARCHAR(20) NOT NULL,
+   rec_num INT(11) NOT NULL,
+   Date datetime NOT NULL
+
+);
+
+
+CREATE TABLE RoomInfo(
+   seq INT(11) NOT NULL auto_increment primary key,
+   title varchar(20) NOT NULL,
+   id varchar(20) NOT NULL,
+   date datetime NOT NULL,
+   Data varchar(4000)
+);
+
+CREATE TABLE Recipe_Detail(
+   recipeName varchar(10) NOT NULL primary key,
+   detail varchar(800),
+   VidPath varchar(50),
+   ImgPath varchar(50)
+);	
+
+
+
+
+
+-- 아직 사용되지 않는 DB-----------------------------
 -- Community_Board(일반 게시판 기능)
 CREATE TABLE IF NOT EXISTS Community_Board (
   seq INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -29,6 +80,9 @@ CREATE TABLE IF NOT EXISTS Recipe_Board (
   shared TINYINT(1) NOT NULL
 );
 
+
+
+
 -- Recipe_Step_Info(레시피 단계 정보)
 CREATE TABLE IF NOT EXISTS Recipe_Step_Info (
   seq INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -36,52 +90,3 @@ CREATE TABLE IF NOT EXISTS Recipe_Step_Info (
   info VARCHAR(1000)
 );
 
--- Users(유저 정보) TABLE
-CREATE TABLE IF NOT EXISTS Users (
-  id VARCHAR(20) NOT NULL PRIMARY KEY,
-  name VARCHAR(30) NOT NULL,
-  password VARCHAR(200) NOT NULL,
-  intro VARCHAR(300),
-  favorite VARCHAR(500),
-  deleted_day VARCHAR(30)
-  salt VARCHAR()
-);
-
-
-CREATE TABLE IF NOT EXISTS Recipe (
-   seq INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-   recipeName VARCHAR(10),
-   rarity VARCHAR(8), 
-   summary VARCHAR(30),
-   detail VARCHAR(800)
-);
-
-
--- Logs(로그 정보) TABLE
-CREATE TABLE IF NOT EXISTS Logs (
-  seq INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  content VARCHAR(1000) NOT NULL,
-  date VARCHAR(30) NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS Collection (
-   id VARCHAR(20) NOT NULL,
-   rec_num INT(11) NOT NULL
-
-);
-
-
-CREATE TABLE RoomInfo(
-   seq INT(11) NOT NULL auto_increment primary key,
-   title varchar(20) NOT NULL,
-   id varchar(20) NOT NULL,
-   `date` datetime NOT NULL,
-   `Data` varchar(800) NOT NULL
-);
-
-CREATE TABLE Recipe_Detail(
-   recipeName varchar(10) NOT NULL primary key,
-   detail varchar(800),
-   VidPath varchar(50),
-   ImgPath varchar(50)
-);	
