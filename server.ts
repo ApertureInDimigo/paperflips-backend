@@ -13,8 +13,9 @@ app.use(function(req:any,res:any,next:any) {
         url: 'http://ip-api.com/json'
       }, function(error:any, response:any, body:any) {
         let data:any = JSON.parse(body);
-        if(data.countryCode == "CN") {
+        if(data.countryCode == "CN") { //중국 ip 차단
             res.status(404).end()
+            return;
         }else {
             next();
         }

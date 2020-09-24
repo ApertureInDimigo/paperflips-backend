@@ -1,15 +1,18 @@
-let Ds = require('discord.js')
-let Cl = new Ds.Client();
-let channel:any;
-let data = require('../config/bot_data')
+///////////////// 서버에 에러가 발생했을때를 대비한 디스코드 봇. 서버에 에러가 발생하면 logs_() 함수를 호출해서 디스코드 봇으로 알려줌.
 
-Cl.on('ready', () => {
+
+let Ds = require('discord.js') //디스코드 SDK
+let Cl = new Ds.Client(); //봇 객체 
+let channel:any; //채팅 채널 프로퍼티 
+let data = require('../config/bot_data') //봇의 토큰을 보관..
+
+Cl.on('ready', () => { //서버가 시작되면 채팅 객체를 받아옴 
   channel = Cl.channels.cache.get(data.ID);
 })
 
-Cl.login(data.token);
+Cl.login(data.token); //디스코드 로그인 
 
-function logs_(str:string) {
+function logs_(str:string) { //에러 시 호출되는 함수 
     channel.send(`ERROR 발생!! 내용 : ${str} \n @everyone`);
 }
 

@@ -19,11 +19,10 @@ let connection:any = mysql.createConnection(dbconfig); //mysql 연결
 
 import {isAdmin} from '../util/admin' //admin 판단을 위함 
 import { check, check_id, check_name, check_pwd } from '../util/checker' //정규식 체크
-import { isUndefined } from 'util';
 
 router.use(function (req:any, res:any,next:any){
   connection.on('error', function(err:any) {
-    if(err.code === 'PROTOCOL_CONNECTION_LOST') { 
+    if(err.code === 'PROTOCOL_CONNECTION_LOST') {   
       connection = mysql.createConnection(dbconfig);         
       next();             
     } else {
@@ -74,6 +73,7 @@ try {
     } 
   }catch(e) {
     res.status(404).end();
+    return;
   }
       
 });
@@ -86,12 +86,12 @@ router.get('/GetCollection', (req:any, res:any) => { //컬렉션 레시피들 �
   let token
 
 
-if(isUndefined(cookie)) {
+if(cookie === undefined) {
   res.status(401).end()
+  return;
 } else {
-  let decode;
-    
 
+  let decode;
     try{
       token = cookie.substring(5, cookie.length)
       decode = jwt.verify(token, secretObj.secret)
@@ -113,6 +113,7 @@ if(isUndefined(cookie)) {
         if (error) {
         logs_(error)
         res.status(404).end()
+        return;
       }
        
       
@@ -120,15 +121,13 @@ if(isUndefined(cookie)) {
        let data:any = JSON.parse(`{ "data" : [ ${raw_data.substring(1, raw_data.length - 1)}]}`);
        
        res.status(200).send(data);
+       return;
     });
     }catch(e) {
       logs_(e);
       res.status(404).end()
+      return;
     }
-
-
-     
-   
   }
 })
 
@@ -137,13 +136,14 @@ if(isUndefined(cookie)) {
 router.post('/AddCollection/:cId', (req:any, res:any) => {
   if(!check(req.params.cId)) {
     res.status(404).end()
+    return;
   }
   let Recipe_seq = req.params.cId; //추가할 레시피 seq
   let cookie = req.headers.cookie; 
-  console.log(isUndefined(cookie));
   
-  if(isUndefined(cookie)) {
+  if(cookie === undefined) {
     res.status(401).end();
+    return;
   } else {
     let decode;
     
@@ -152,6 +152,7 @@ router.post('/AddCollection/:cId', (req:any, res:any) => {
       decode =  jwt.verify(token, secretObj.secret);
     }catch(e) {
       res.status(401).end();
+      return;
     }
       
       
@@ -160,6 +161,7 @@ router.post('/AddCollection/:cId', (req:any, res:any) => {
 
       if(!check_id(id)) {
          res.status(404).end();
+         return;
        }
 
        connection.query(`SELECT * FROM Collection WHERE id='${id}' AND rec_num=${Recipe_seq}`, (error:any, rows:any) => {
@@ -170,13 +172,16 @@ router.post('/AddCollection/:cId', (req:any, res:any) => {
               if(error) {
                 console.log(error);
                 res.status(404).end();
+                return;
               } 
               res.status(200).end();
+              return;
             })
         })
      }catch(e) {
        logs_(e);
       res.status(404).end();
+      return;
     }
   }
   
@@ -203,7 +208,7 @@ router.post('/Adduser',(req:any, res:any) => {
       return;
     }
     
-      //32바이트의 랜덤 문자열 생성(salt)
+      //32바이트의 랜덤 문자열 생성(salt) 
       crypto.randomBytes(32, (err:any, buf:Buffer) => {
         //salt를 이용한 pwd 암호화
          crypto.pbkdf2(data.pwd , buf.toString('base64'), 126117, 64, 'sha512', (err:any, key:any) => {
@@ -218,9 +223,11 @@ router.post('/Adduser',(req:any, res:any) => {
             if(err) {
               res.status(404).end();
               logs_(err);
+              return;
               }
             else {
               res.status(200).end();
+              return;
               }
             });
          });
@@ -231,22 +238,25 @@ router.post('/Adduser',(req:any, res:any) => {
 router.get('/SearchUser/:id', (req:any, res:any) => {
 
      if(!check_id(req.params.id)) {
-      res.status(404).end();       
+      res.status(404).end(); 
+      return;      
       }
 
    connection.query('SELECT id,name,intro,favorite,deleted_day from Users WHERE id="' + req.params.id + '"', (error:any, rows:any) => {
      if (error) {
        logs_(error);
        res.status(404).end();
+       return;
      }
      try{
       let raw_data:string = JSON.stringify(rows);
       let data:any = JSON.parse(raw_data.substring(1, raw_data.length-2) + "}");
       res.status(200).send(data);
+      return;
      } catch(e) {
-       console.log(e);
        logs_(e);
       res.status(404).end();
+      return;
     }
    }
    );
@@ -257,7 +267,7 @@ router.get('/SearchUser/:id', (req:any, res:any) => {
 router.get('/GetMyInfo', (req:any, res:any) => {
   let cookie = req.headers.cookie
    
-  if(isUndefined(cookie)) {
+  if(cookie === undefined) {
     res.status(401).end()
   } else {
 
@@ -399,7 +409,6 @@ try{
 
         res.status(200).end();
         return;
-        console.log(rows);
      });
    }catch(e) {
      res.status(404).end();
@@ -408,7 +417,7 @@ try{
  })
 
  router.get('/myRoom', (req:any, res:any) => {
-   let cookie = req.headers.cookie;
+   /*let cookie = req.headers.cookie;
    let token;
    let decode;
    try{
@@ -417,12 +426,13 @@ try{
    } catch(e) {
      res.status(401).end()
      return;
-   }
+   }*/
+   
  
    try{
 
    
-   connection.query(`SELECT seq, title, date, Data FROM RoomInfo WHERE id='${decode.id}'`, (err:any ,rows:any) => {
+   connection.query(`SELECT seq, title, date, Data FROM RoomInfo WHERE id='minsoo0715'`, (err:any ,rows:any) => {
      if(err) {
        res.status(404).end();
        console.log(err);
@@ -434,12 +444,18 @@ try{
        return;
      }
      
+     let data = JSON.parse(JSON.stringify(rows));
+      
      
-    for(let i = 0; i<rows.length; i++) {
-      rows[i].Data = JSON.parse(rows[i].Data);
-    }
 
-     res.status(200).send(rows)
+     for(let i:number = 0; i<data.length; i++) {
+      data[i].Data = JSON.parse(data[i].Data);
+     }
+     console.log(data);
+     
+     
+
+     res.status(200).send(data)
      return;
     
    })
