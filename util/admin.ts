@@ -1,6 +1,6 @@
 /*어드민 권한 체크용*/
 
-export function isAdmin(input:string) {
+export function isAdmin(input:string):boolean {
     let adminList:Array<string> = new Array<string>(
         "minsoo0715",
         "ruadl034",
