@@ -14,8 +14,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use(function(req:Request,res:Response,next:NextFunction) {
-  if(!req.secure){ res.redirect("https://"+ "paperflips.p-e.kr" + req.url); return; }else{ 
-    console.log(req.hostname + '    ' + req.subdomains);
+  if(!req.secure){ res.redirect("https://"+ req.hostname + req.url); return; }else{ 
     request_other.get({
       url: 'http://ip-api.com/json'
     }, function(error:any, response:any, body:any) {
