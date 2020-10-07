@@ -28,6 +28,11 @@ app.use(function(req:Request,res:Response,next:NextFunction) {
       )
 })
 
+app.use(function(req:Request, res:Response, next:NextFunction) {
+  if(!req.secure){ res.redirect("https://"+ "paperflips.p-e.kr" + req.url); }else{ next(); }
+
+})
+
 
 let router:Router = require('./router/main')(app);
 
@@ -50,6 +55,7 @@ https.createServer(options, app).listen(443,'141.164.50.191', function() {
         console.log("Express server has started on port 443");
 });
 
+app.use()
 
 app.use(express.static('public'));
 
