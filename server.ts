@@ -3,6 +3,9 @@ let bodyParser = require('body-parser');
 let request_other = require('request');
 let cookieParser = require('cookie-parser');
 let http = require('http');
+let https = require('https');
+let fs = require('fs');
+
 import {Request, Response, NextFunction, Router} from 'express'
 
 let app = express();
@@ -32,23 +35,21 @@ app.set('views', __dirname + '/public');
 app.set('view engine', 'ejs');
 app.engine('html', require('ejs').renderFile);
 
-
+/*
 let server = app.listen(80 ,'141.164.50.191' ,function(){
     console.log("Express server has started on port 80");
-})
+})*/
 
-/*
-const https = require('https');
-const fs = require('fs');
+
 const options = {
-  ca: fs.readFileSync('인증서경로/ca-chain-bundle.pem'),
-  key: fs.readFileSync('인증서경로/domain_xxxxx.key.pem'),
-  cert: fs.readFileSync('인증서경로/domain_xxxxx.crt.pem')
+  ca: fs.readFileSync('ssl-key/ca_bundle.crt'),
+  key: fs.readFileSync('ssl-key/private.key'),
+  cert: fs.readFileSync('ssl-key/certificate.crt')
 };
-https.createServer(option, app).listen(3000 || process.env.PORT, function() {
-        console.log("Express server has started on port 3000");
+https.createServer(option, app).listen(443,'141.164.50.191', function() {
+        console.log("Express server has started on port 443");
 });
-*/
+
 
 app.use(express.static('public'));
 
