@@ -46,7 +46,7 @@ const options = {
   key: fs.readFileSync('ssl-key/private.key'),
   cert: fs.readFileSync('ssl-key/certificate.crt')
 };
-https.createServer(option, app).listen(443,'141.164.50.191', function() {
+https.createServer(options, app).listen(443,'141.164.50.191', function() {
         console.log("Express server has started on port 443");
 });
 
