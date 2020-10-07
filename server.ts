@@ -38,10 +38,9 @@ app.set('views', __dirname + '/public');
 app.set('view engine', 'ejs');
 app.engine('html', require('ejs').renderFile);
 
-/*
 let server = app.listen(80 ,'141.164.50.191' ,function(){
     console.log("Express server has started on port 80");
-})*/
+})
 
 
 const options = {
