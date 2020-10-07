@@ -5,13 +5,21 @@ let cookieParser = require('cookie-parser');
 let http = require('http');
 let https = require('https');
 let fs = require('fs');
+let favicon = require('serve-favicon')
+let path = require('path')
+
+
 
 import {Request, Response, NextFunction, Router} from 'express'
+
+
 
 let app = express();
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+
+app.use(favicon(path.join(__dirname, 'favicon', 'favicon.ico')));
 
 app.use(function(req:Request,res:Response,next:NextFunction) {
   if(!req.secure){ res.redirect("https://"+ req.hostname + req.url); return; }else{ 
