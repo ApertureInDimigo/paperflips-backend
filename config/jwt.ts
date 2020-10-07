@@ -1,5 +1,4 @@
-let jwtObj = {
+export let secretObj = {
     secret: "hadby"
 };
 
-module.exports = jwtObj;

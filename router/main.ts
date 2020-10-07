@@ -1,8 +1,9 @@
+let UserRouter = require('./User')
+let ImageRouter = require('./image')
+let recipeRouter = require('./recipe');
 
+import {Request, Response} from 'express';
 
-let UserRouter:any = require('./User')
-let ImageRouter:any = require('./image')
-let recipeRouter:any = require('./recipe')
 
 module.exports = function(app:any)
 
@@ -13,7 +14,7 @@ module.exports = function(app:any)
 
       //restful API 구현부
       
-      app.get('/privacy', (req:any, res:any) => {
+      app.get('/privacy', (req:Request, res:Response) => {
         
         res.render('privacy.html')
       });

@@ -1,5 +1,7 @@
 
-module.exports = {
+ import * as mysql from 'mysql';
+ 
+ export let dbconfig:mysql.ConnectionConfig = {
     host     : 'us-cdbr-east-02.cleardb.com',
     user     : 'b5c72055d07cd3',
     password : 'afca248a',
