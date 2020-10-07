@@ -32,12 +32,9 @@ app.set('views', __dirname + '/public');
 app.set('view engine', 'ejs');
 app.engine('html', require('ejs').renderFile);
 
-/** let server = app.listen(process.env.PORT || 3000 , function(){
-    console.log("Express server has started on port 3000");
-})*/
 
-let http_server = http.createServer(app).listen(process.env.PORT || 3000, function() {
-    console.log("Express server has started on port 3000");
+let server = app.listen(80 ,'141.164.50.191' ,function(){
+    console.log("Express server has started on port 80");
 })
 
 /*
