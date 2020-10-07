@@ -14,23 +14,21 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use(function(req:Request,res:Response,next:NextFunction) {
+  if(!req.secure){ res.redirect("https://"+ "paperflips.p-e.kr" + req.url); return; }else{ 
     request_other.get({
-        url: 'http://ip-api.com/json'
-      }, function(error:any, response:any, body:any) {
-        let data:any = JSON.parse(body);
-        if(data.countryCode == "CN") { //중국 ip 차단
-            res.status(404).end()
-            return;
-        }else {
-            next();
-        }
+      url: 'http://ip-api.com/json'
+    }, function(error:any, response:any, body:any) {
+      let data:any = JSON.parse(body);
+      if(data.countryCode == "CN") { //중국 ip 차단
+          res.status(404).end()
+          return;
+      }else {
+          next();
       }
-      )
-})
+    }
+    )
 
-app.use(function(req:Request, res:Response, next:NextFunction) {
-  if(!req.secure){ res.redirect("https://"+ "paperflips.p-e.kr" + req.url); }else{ next(); }
-
+   }  
 })
 
 
@@ -55,7 +53,6 @@ https.createServer(options, app).listen(443,'141.164.50.191', function() {
         console.log("Express server has started on port 443");
 });
 
-app.use()
 
 app.use(express.static('public'));
 
