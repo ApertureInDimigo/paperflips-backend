@@ -1,20 +1,20 @@
 let express = require('express');
 let bodyParser = require('body-parser');
-let request_other = require('request');
+let _request = require('request');
 let cookieParser = require('cookie-parser');
 let http = require('http');
 let https = require('https');
 let fs = require('fs');
 let favicon = require('serve-favicon')
 let path = require('path')
-
-
+let helmet = require('helmet');
 
 import {Request, Response, NextFunction, Router} from 'express'
 
 
 
 let app = express();
+app.use(helmet());
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -22,8 +22,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(favicon(path.join(__dirname, 'favicon', 'favicon.ico')));
 
 app.use(function(req:Request,res:Response,next:NextFunction) {
-  if(!req.secure){ res.redirect(307 ,"https://"+ req.hostname + req.url); return; }else{ 
-    request_other.get({
+  if(!req.secure){ res.redirect("https://"+ req.hostname + req.url); return; }else{ 
+    _request.get({
       url: 'http://ip-api.com/json'
     }, function(error:any, response:any, body:any) {
       let data:any = JSON.parse(body);
