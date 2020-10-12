@@ -22,7 +22,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(favicon(path.join(__dirname, 'favicon', 'favicon.ico')));
 
 app.use(function(req:Request,res:Response,next:NextFunction) {
-  if(!req.secure){ res.redirect("https://"+ req.hostname + req.url); return; }else{ 
+  if(!req.secure){ res.redirect(307, req.url); return; }else{ 
     _request.get({
       url: 'http://ip-api.com/json'
     }, function(error:any, response:any, body:any) {
@@ -42,6 +42,7 @@ app.use(function(req:Request,res:Response,next:NextFunction) {
 
 let router:Router = require('./router/main')(app);
 
+
 app.set('views', __dirname + '/public');
 app.set('view engine', 'ejs');
 app.engine('html', require('ejs').renderFile);
@@ -52,9 +53,9 @@ let server = app.listen(80 ,'141.164.50.191' ,function(){
 
 
 const options = {
-  ca: fs.readFileSync('ssl-key/ca_bundle.crt'),
-  key: fs.readFileSync('ssl-key/private.key'),
-  cert: fs.readFileSync('ssl-key/certificate.crt')
+  ca: fs.readFileSync('ssl-key/paperflips_p-e_kr.ca-bundle'),
+  cert: fs.readFileSync('ssl-key/paperflips_p-e_kr.crt'),
+  key: fs.readFileSync('ssl-key/paperflips_p-e_kr.key')
 };
 https.createServer(options, app).listen(443,'141.164.50.191', function() {
         console.log("Express server has started on port 443");
