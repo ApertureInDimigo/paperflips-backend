@@ -5,7 +5,7 @@ import * as jwt from 'jsonwebtoken';
 import {secretObj} from '../config/jwt'
 import * as mysql from 'mysql';
 
-import {upload} from '../storage_handler'
+import {upload} from '../Image_Server/storage_handler'
 import {dbconfig} from '../config/database'
 let connection:mysql.Connection = mysql.createConnection(dbconfig); //mysql 연결
 import {logs_} from '../Bot/botplay';
@@ -13,7 +13,7 @@ import {logs_} from '../Bot/botplay';
 import * as path from 'path';
 import {FileJSON, RecipeJSON, AllRecipeJSON, RecipeDetail} from '../interface';
 
-import {S3_server} from '../S3_handler';
+import {S3_server} from '../Image_Server/S3_handler'
 
 
 import {check_number, check_name} from '../util/checker'

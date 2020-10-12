@@ -176,7 +176,6 @@ router.post('/AddCollection/:cId', (req:express.Request, res:express.Response) =
          }
           connection.query(`INSERT INTO Collection (id, rec_num, Date) VALUES ('${id}', ${Recipe_seq}, '${moment().format('YYYY-MM-DD HH:mm:ss')}')`, (error:mysql.MysqlError, rows:any) => {
               if(error) {
-                console.log(error);
                 res.status(404).end();
                 return;
               } 
@@ -346,7 +345,6 @@ try{
       logs_(error.toString());
       res.status(404).end()
     }
-  console.log(rows[0]);
     crypto.pbkdf2(data.pwd , rows[0].salt, 126117, 64, 'sha512', (err:Error|null, key:Buffer) => {
 
      if(err) {
@@ -445,7 +443,6 @@ try{
    connection.query(`SELECT seq, title, date, Data FROM RoomInfo WHERE id='minsoo0715'`, (err:mysql.MysqlError ,rows:any) => {
      if(err) {
        res.status(404).end();
-       console.log(err);
        return;
      }
 
