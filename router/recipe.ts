@@ -17,7 +17,6 @@ import {S3_server} from '../Image_Server/S3_handler'
 
 
 import {check_number, check_name} from '../util/checker'
-import { isAdmin } from '../util/admin';
 
 router.use(function (req:express.Request, res:express.Response,next:express.NextFunction){   //SQL CONNECTION 체크를 위한 함수
   connection.on('error', function(err:mysql.MysqlError) {
@@ -85,7 +84,7 @@ router.post('/Upload',upload.single('img'), (req:express.Request, res:express.Re
 
   
   try{
-    if(!isAdmin( JSON.parse(JSON.stringify(decode)).id)) { //관리자만 접근 가능 
+    if(JSON.parse(JSON.stringify(decode)).id) { //관리자만 접근 가능 
      res.status(403).end() //권한 없음 
      return;
     }else {
@@ -205,7 +204,7 @@ router.post('/AddDetail/:recipeName', (req:express.Request, res:express.Response
      return;
   }
   
-  if(!isAdmin(JSON.parse(JSON.stringify(decode)).id)) {
+  if(JSON.parse(JSON.stringify(decode)).admin) {
     res.status(403).end()
     return;
   }

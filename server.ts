@@ -10,6 +10,7 @@ let path = require('path')
 let helmet = require('helmet');
 
 import {Request, Response, NextFunction, Router} from 'express'
+import {logs_http} from './Bot/botplay'
 
 
 
@@ -18,11 +19,12 @@ app.use(helmet());
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-
 app.use(favicon(path.join(__dirname, 'favicon', 'favicon.ico')));
 
 app.use(function(req:Request,res:Response,next:NextFunction) {
-  if(!req.secure){ res.redirect(307, req.url); return; }else{ 
+  logs_http(`Route :${req.url}     IP: ${req.headers['x-forwarded-for'] || req.connection.remoteAddress}`)  
+console.log(req.url);
+  if(!req.secure){ res.redirect(307, "https://paperflips.com"+req.url); return; }else{ 
     _request.get({
       url: 'http://ip-api.com/json'
     }, function(error:any, response:any, body:any) {
