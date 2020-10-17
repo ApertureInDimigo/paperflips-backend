@@ -53,9 +53,9 @@ let server = app.listen(80 ,'141.164.50.191' ,function(){
 
 
 const options = {
-  ca: fs.readFileSync('ssl-key/paperflips_p-e_kr.ca-bundle'),
-  cert: fs.readFileSync('ssl-key/paperflips_p-e_kr.crt'),
-  key: fs.readFileSync('ssl-key/paperflips_p-e_kr.key')
+  ca: fs.readFileSync('ssl-key/paperflips_com.ca-bundle'),
+  cert: fs.readFileSync('ssl-key/paperflips_com.crt'),
+  key: fs.readFileSync('ssl-key/paperflips_com.key')
 };
 https.createServer(options, app).listen(443,'141.164.50.191', function() {
         console.log("Express server has started on port 443");
