@@ -19,12 +19,12 @@ import {S3_server} from '../Image_Server/S3_handler'
 import {check_number, check_name} from '../util/checker'
 
 router.use(function (req:express.Request, res:express.Response,next:express.NextFunction){   //SQL CONNECTION 체크를 위한 함수
-  connection.on('error', function(err:mysql.MysqlError) {
-    if(err.code === 'PROTOCOL_CONNECTION_LOST') { 
+  connection.on(`error`, function(err:mysql.MysqlError) {
+    if(err.code === `PROTOCOL_CONNECTION_LOST`) { 
       connection = mysql.createConnection(dbconfig);         
       next();             
     } else {                    
-      logs_("sql connection error")                
+      logs_(`sql connection error`)                
       res.status(404).end()                            
     }
     next();
@@ -33,7 +33,7 @@ router.use(function (req:express.Request, res:express.Response,next:express.Next
 });
 
 //////////////////////////////레시피 데이터 
-router.get('/data/:seq', (req:express.Request, res:express.Response) => {  
+router.get(`/data/:seq`, (req:express.Request, res:express.Response) => {  
   let seq:string = req.params.seq;
 
     if(check_number(seq)) {
@@ -45,7 +45,8 @@ router.get('/data/:seq', (req:express.Request, res:express.Response) => {
        return;
       }
        let obj:string = JSON.stringify(rows);
-       let obj2:any = JSON.parse("{" + "\"data\":" + obj.substring(1, obj.length - 1) + "}");
+       let obj2:any = JSON.parse(`{"data": ${obj.substring(1, obj.length - 1)}}`);
+
      
        res.status(200).send(obj2);
        return;
@@ -63,14 +64,14 @@ router.get('/data/:seq', (req:express.Request, res:express.Response) => {
 
  });
 //////////// 운영자 권한 
-router.post('/Upload',upload.single('img'), (req:express.Request, res:express.Response) => { //파라미터로
+router.post(`/Upload`,upload.single(`img`), (req:express.Request, res:express.Response) => { //파라미터로
 
   if(req.cookies === undefined) {
     res.send(401).end()
     return
   }  
   
-  let host:string = 'https://paperflips.s3.amazonaws.com'
+  let host:string = `https://paperflips.s3.amazonaws.com`
   let token:string;
   let decode:string|object;
   
@@ -84,7 +85,7 @@ router.post('/Upload',upload.single('img'), (req:express.Request, res:express.Re
 
   
   try{
-    if(JSON.parse(JSON.stringify(decode)).id) { //관리자만 접근 가능 
+    if(!JSON.parse(JSON.stringify(decode)).admin) { //관리자만 접근 가능 
      res.status(403).end() //권한 없음 
      return;
     }else {
@@ -105,7 +106,7 @@ router.post('/Upload',upload.single('img'), (req:express.Request, res:express.Re
         }
         let raw_data:string = JSON.stringify(rows);   //sql raw data
         let data:any = JSON.parse(raw_data); //JSON 형식으로 변경
-        let seq:string = JSON.stringify(data[1][0]['LAST_INSERT_ID()']); //입력한 파일의 SEQ를 받아옴
+        let seq:string = JSON.stringify(data[1][0][`LAST_INSERT_ID()`]); //입력한 파일의 SEQ를 받아옴
 
 
 
@@ -116,7 +117,7 @@ router.post('/Upload',upload.single('img'), (req:express.Request, res:express.Re
           
        let image_server = new S3_server();
        image_server.recipe_upload(seq, result.originalname); //recipe_img 디렉토리에 파일을 업로드 함..
-       connection.query(`UPDATE Recipe SET path='${host}/recipe_img/${seq}${path.extname(req.file.originalname)}'`); //업로드 한 파일의 s3 경로를 받아옴 
+       connection.query(`UPDATE Recipe SET path='${host}/recipe_img/${seq}${path.extname(req.file.originalname)}' WHERE seq='${seq}'`); //업로드 한 파일의 s3 경로를 받아옴 
        res.status(200).end(); //성공 
        return;
       })
@@ -128,7 +129,7 @@ router.post('/Upload',upload.single('img'), (req:express.Request, res:express.Re
   }
 })
 
-router.get('/Search', (req:express.Request, res:express.Response) => { //레시피 검색 기능  
+router.get(`/Search`, (req:express.Request, res:express.Response) => { //레시피 검색 기능  
   let recipe:any = req.query.q;
 
   if(!check_name(recipe)) {
@@ -162,7 +163,7 @@ router.get('/Search', (req:express.Request, res:express.Response) => { //레시�
 
 
 
-router.get('/AllData', (req:express.Request, res:express.Response) => {   //모든 레시피 데이터 가져오기 LIMIT 추가 예정.
+router.get(`/AllData`, (req:express.Request, res:express.Response) => {   //모든 레시피 데이터 가져오기 LIMIT 추가 예정.
   try{
     connection.query(`SELECT seq, recipeName,rarity,summary,path from Recipe`, (error:mysql.MysqlError, rows:any) => { //쿼리
       if (error) { // 에러
@@ -185,7 +186,7 @@ router.get('/AllData', (req:express.Request, res:express.Response) => {   //모�
 })
 
 
-router.post('/AddDetail/:recipeName', (req:express.Request, res:express.Response) => {
+router.post(`/AddDetail/:recipeName`, (req:express.Request, res:express.Response) => {
 
   if(req.cookies === undefined) {
     res.send(401).end()
@@ -204,7 +205,7 @@ router.post('/AddDetail/:recipeName', (req:express.Request, res:express.Response
      return;
   }
   
-  if(JSON.parse(JSON.stringify(decode)).admin) {
+  if(!JSON.parse(JSON.stringify(decode)).admin) {
     res.status(403).end()
     return;
   }
@@ -227,7 +228,7 @@ router.post('/AddDetail/:recipeName', (req:express.Request, res:express.Response
    }
 })
 
-router.get('/GetDetail/:recipeName', (req:express.Request, res:express.Response) => {
+router.get(`/GetDetail/:recipeName`, (req:express.Request, res:express.Response) => {
   try{
 connection.query(`SELECT * FROM Recipe_Detail WHERE recipeName='${req.params.recipeName}'` ,(error:mysql.MysqlError, rows:any) => {
   res.status(200).send(rows[0]);

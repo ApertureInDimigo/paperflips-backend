@@ -23,13 +23,12 @@ app.use(favicon(path.join(__dirname, 'favicon', 'favicon.ico')));
 
 app.use(function(req:Request,res:Response,next:NextFunction) {
   logs_http(`Route :${req.url}     IP: ${req.headers['x-forwarded-for'] || req.connection.remoteAddress}`)  
-console.log(req.url);
   if(!req.secure){ res.redirect(307, "https://paperflips.com"+req.url); return; }else{ 
     _request.get({
       url: 'http://ip-api.com/json'
     }, function(error:any, response:any, body:any) {
       let data:any = JSON.parse(body);
-      if(data.countryCode == "CN") { //중국 ip 차단
+      if(data.countryCode != "KR") { //중국 ip 차단
           res.status(404).end()
           return;
       }else {

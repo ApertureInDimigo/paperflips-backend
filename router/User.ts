@@ -23,8 +23,8 @@ import {isAdmin} from '../util/admin' //admin 판단을 위함
 import { check_number, check_id, check_name, check_pwd } from '../util/checker' //정규식 체크
 
 router.use(function (req:express.Request, res:express.Response,next:express.NextFunction){
-  connection.on('error', function(err:mysql.MysqlError) {
-    if(err.code === 'PROTOCOL_CONNECTION_LOST') {   
+  connection.on(`error`, function(err:mysql.MysqlError) {
+    if(err.code === `PROTOCOL_CONNECTION_LOST`) {   
       connection = mysql.createConnection(dbconfig);         
       next();             
     } else {
@@ -40,7 +40,7 @@ router.use(function (req:express.Request, res:express.Response,next:express.Next
 /////////////      Admin 권한               ////////////////
 
 ///////////////모든 유저 정보를 가져옴
-router.get('/users', (req:express.Request, res:express.Response) => {
+router.get(`/users`, (req:express.Request, res:express.Response) => {
   let isAdmin:boolean = false;
   let token:string;
   let decode:object|string;
@@ -86,7 +86,7 @@ try {
 
 /////////////      User  권한               ////////////////
 
-router.get('/GetCollection', (req:express.Request, res:express.Response) => { //컬렉션 레시피들 가져오기
+router.get(`/GetCollection`, (req:express.Request, res:express.Response) => { //컬렉션 레시피들 가져오기
 
   let token:string;
 
@@ -138,7 +138,7 @@ if(req.cookies === undefined) {
 
 ////////////////컬렉션 추가
 
-router.post('/AddCollection/:cId', (req:express.Request, res:express.Response) => {
+router.post(`/AddCollection/:cId`, (req:express.Request, res:express.Response) => {
   if(!check_number(req.params.cId)) {
     res.status(404).end()
     return;
@@ -198,7 +198,7 @@ router.post('/AddCollection/:cId', (req:express.Request, res:express.Response) =
 
 
 /////////////// 회원 가입 
-router.post('/Adduser',(req:express.Request, res:express.Response) => {
+router.post(`/Adduser`,(req:express.Request, res:express.Response) => {
 
     //////////////////////id, password, name 필드 
    let data:registerJSON = {
