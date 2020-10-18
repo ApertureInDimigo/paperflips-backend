@@ -21,8 +21,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(favicon(path.join(__dirname, 'favicon', 'favicon.ico')));
 
-app.use(function(req:Request,res:Response,next:NextFunction) {
-  logs_http(`Route :${req.url}     IP: ${req.headers['x-forwarded-for'] || req.connection.remoteAddress}`)  
+app.use(function(req:Request,res:Response,next:NextFunction) { 
   if(!req.secure){ res.redirect(307, "https://paperflips.com"+req.url); return; }else{ 
     _request.get({
       url: 'http://ip-api.com/json'
@@ -32,6 +31,7 @@ app.use(function(req:Request,res:Response,next:NextFunction) {
           res.status(404).end()
           return;
       }else {
+	  logs_http(`Route :${req.url}     IP: ${req.headers['x-forwarded-for'] || req.connection.remoteAddress}`)
           next();
       }
     }
