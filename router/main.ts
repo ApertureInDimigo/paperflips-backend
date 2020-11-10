@@ -18,4 +18,9 @@ module.exports = function(app:any)
         
         res.render('privacy.html')
       });
+
+      app.get("/robots.txt", (req:Request, res:Response) => {
+         res.type("text/plain")
+         res.send("User-agent: *\nDisallow: /");
+      })
 }

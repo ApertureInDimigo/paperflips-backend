@@ -4,7 +4,7 @@ import * as fs from 'fs'
 import * as path from 'path';
 
 export class S3_server {
-    s3:AWS.S3
+    private s3:AWS.S3
 
     constructor() {
        AWS.config.region = 'us-east-1'
