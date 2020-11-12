@@ -1,9 +1,7 @@
 let UserRouter = require('./User')
 let ImageRouter = require('./image')
 let recipeRouter = require('./recipe');
-
-import {Request, Response} from 'express';
-
+import {privacy, robot} from '../MiddleWare/etc'
 
 module.exports = function(app:any)
 
@@ -14,13 +12,7 @@ module.exports = function(app:any)
 
       //restful API 구현부
       
-      app.get('/privacy', (req:Request, res:Response) => {
-        
-        res.render('privacy.html')
-      });
+      app.get('/privacy', privacy);
 
-      app.get("/robots.txt", (req:Request, res:Response) => {
-         res.type("text/plain")
-         res.send("User-agent: *\nDisallow: /");
-      })
+      app.get("/robots.txt", robot)
 }
