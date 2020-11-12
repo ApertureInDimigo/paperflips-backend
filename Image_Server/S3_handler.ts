@@ -25,7 +25,7 @@ export class S3_server {
         let param:PutObjectRequest = {
             'Bucket':'paperflips', //버킷 이름
             'Key': locate + '/' + setname, //저장할 파일 이름 
-            'ACL':'public-read', //권한, 공개 읽기
+                'ACL':'public-read', //권한, 공개 읽기
             'Body': fs.createReadStream('./images/' + fname), //읽어올 곳 
             'ContentType':'image/png'  //파일 형식 
           } 

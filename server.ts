@@ -24,7 +24,7 @@ app.use(favicon(path.join(__dirname, 'favicon', 'favicon.ico')));
 app.use(function(req:Request,res:Response,next:NextFunction) { 
   if(!req.secure){ res.redirect(307, "https://paperflips.com"+req.url); return; }else{ 
     _request.get({
-      url: 'http://ip-api.com/json'
+      url: `http://ip-api.com/json/${req.headers['x-forwarded-for'] || req.connection.remoteAddress}`
     }, function(error:any, response:any, body:any) {
       let data:any = JSON.parse(body);
       if(data.countryCode != "KR") { //중국 ip 차단
