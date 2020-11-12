@@ -9,11 +9,11 @@ USE paperflips;
 CREATE TABLE IF NOT EXISTS Users (
   id VARCHAR(20) NOT NULL PRIMARY KEY,
   name VARCHAR(30) NOT NULL,
-  password VARCHAR(200) NOT NULL,
+  password VARCHAR(88) NOT NULL,
   intro VARCHAR(300),
   favorite VARCHAR(500),
-  deleted_day VARCHAR(30)
-  salt VARCHAR()
+  deleted_day VARCHAR(30),
+  salt VARCHAR(44)
 );
 
 
@@ -47,7 +47,7 @@ CREATE TABLE Recipe_Detail(
    detail varchar(800),
    VidPath varchar(50),
    ImgPath varchar(50)
-);	
+);	  
 
 
 
