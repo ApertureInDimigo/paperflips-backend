@@ -10,7 +10,7 @@ let path = require('path')
 let helmet = require('helmet');
 
 import {Request, Response, NextFunction, Router} from 'express'
-import {logs_http} from './Bot/botplay'
+import {logs_, logs_http} from './Bot/botplay'
 
 
 
@@ -26,14 +26,22 @@ app.use(function(req:Request,res:Response,next:NextFunction) {
     _request.get({
       url: `http://ip-api.com/json/${req.headers['x-forwarded-for'] || req.connection.remoteAddress}`
     }, function(error:any, response:any, body:any) {
-      let data:any = JSON.parse(body);
-      if(data.countryCode != "KR") { //중국 ip 차단
-          res.status(404).end()
-          return;
-      }else {
-	  logs_http(`Route :${req.url}     IP: ${req.headers['x-forwarded-for'] || req.connection.remoteAddress}`)
-          next();
-      }
+        try{
+                let data:any = JSON.parse(body);
+                if(data.countryCode != "KR") { //중국 ip 차단
+                    res.status(404).end()
+                    return;
+                }else {
+
+                    logs_http(`Route :${req.url}     IP: ${req.headers['x-forwarded-for'] || req.connection.remoteAddress}`)
+                    next();
+                }
+        }catch(e) {
+                logs_(e);
+                res.status(404).end()
+                return;
+        }
+      
     }
     )
 
