@@ -13,8 +13,6 @@ let compression = require('compression');
 import {Request, Response, NextFunction, Router} from 'express'
 import {logs_, logs_http} from './Bot/botplay'
 
-
-
 let app = express();
 app.use(compression());
 app.use(helmet());
@@ -43,9 +41,8 @@ app.use(function(req:Request,res:Response,next:NextFunction) {
                 res.status(404).end()
                 return;
         }
-      
     }
-    )
+  )
 
    }  
 })
@@ -78,10 +75,6 @@ https.createServer(options, app).listen(443,'141.164.50.191', function() {
       console.log("Express server has started on port 8000")
       })
 }
-
-
-
-
 
 app.use(express.static('public'));
 

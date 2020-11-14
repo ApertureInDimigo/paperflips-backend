@@ -8,7 +8,6 @@ import { check_number, check_id, check_name, check_pwd } from '../util/checker' 
 import {secretObj} from '../config/jwt' //jwt 비밀키
 import * as jwt from 'jsonwebtoken';
 import {isAdmin} from '../util/admin' //admin 판단을 위함 
-import { ExceptionHandler } from 'winston';
 
 const moment:any = require('moment')
 require('moment-timezone');
