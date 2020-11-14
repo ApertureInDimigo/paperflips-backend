@@ -1,6 +1,4 @@
 import * as mysql from 'mysql';      //mysql 모듈
-import {secretObj} from '../config/jwt' //jwt 비밀키
-import * as jwt from 'jsonwebtoken';
 import {dbconfig} from '../config/database';
 import {Request, Response, NextFunction} from 'express'
 import { logs_ } from '../Bot/botplay';
