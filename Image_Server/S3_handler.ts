@@ -22,7 +22,7 @@ export class S3_server {
     }
 
     private upload_to_server(locate:string, fname:string, setname:string):void {
-        let param:PutObjectRequest = {
+        const param:PutObjectRequest = {
             'Bucket':'paperflips', //버킷 이름
             'Key': locate + '/' + setname, //저장할 파일 이름 
                 'ACL':'public-read', //권한, 공개 읽기

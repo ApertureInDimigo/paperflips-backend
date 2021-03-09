@@ -1,5 +1,5 @@
-let UserRouter = require('./User')
-let recipeRouter = require('./recipe');
+const UserRouter = require('./User')
+const recipeRouter = require('./recipe');
 import {privacy, robot} from '../MiddleWare/etc'
 const cache = require('apicache').middleware
 

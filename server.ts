@@ -7,6 +7,7 @@ const favicon = require('serve-favicon');
 const path = require('path');
 const helmet = require('helmet');
 const compression = require('compression');
+const vultrIP = require('./config/vurturIP')
 
 import {chk_req} from './Controller/chk_req'
 
@@ -29,7 +30,7 @@ require('./router/main')(app);
 // app.engine('html', require('ejs').renderFile);
 
 if (process.env.NODE_ENV === 'production') {
-  app.listen(80, '141.164.50.191', () => {
+  app.listen(80, vultrIP, () => {
     console.log('Express server has started on port 80');
   });
   const options = {
@@ -37,13 +38,14 @@ if (process.env.NODE_ENV === 'production') {
     cert: fs.readFileSync('ssl-key/paperflips_com.crt'),
     key: fs.readFileSync('ssl-key/paperflips_com.key'),
   };
-  https.createServer(options, app).listen(443, '141.164.50.191', () => {
+
+  https.createServer(options, app).listen(443, vultrIP, () => {
     console.log('Express server has started on port 443');
   });
+  
 } else if (process.env.NODE_ENV === 'development') {
   app.listen(8000, () => {
     console.log('Express server has started on port 8000');
   });
 }
 
-//app.use(express.static('public'));

@@ -1,6 +1,6 @@
 import * as express from 'express'
 
-let router:express.Router = express.Router();
+const router:express.Router = express.Router();
 
 import {auth} from '../Controller/authetication'
 import {user} from '../MiddleWare/user'
