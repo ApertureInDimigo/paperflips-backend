@@ -17,7 +17,7 @@ class _recipe {
     }
 
     connectCheck = (req:Request, res:Response, next:NextFunction) => {
-        let self = this;
+        const self = this;
             this.connection.on(`error`, function(err:mysql.MysqlError) {
               if(err.code === `PROTOCOL_CONNECTION_LOST`) {   
                 self.handle();
@@ -33,7 +33,7 @@ class _recipe {
     
     get = (req:Request, res:Response, next:NextFunction) => {
 
-    let seq:string = req.params.seq;
+    const seq:string = req.params.seq;
 
     if(!check_number(seq)) {
         res.status(404).end();
@@ -46,9 +46,9 @@ class _recipe {
        res.status(404).end();
        return;
       }
-       let obj:string = JSON.stringify(rows);
+       const obj:string = JSON.stringify(rows);
 
-       let obj2:any = JSON.parse(`{"data": ${obj.substring(1, obj.length - 1)}}`);
+       const obj2:any = JSON.parse(`{"data": ${obj.substring(1, obj.length - 1)}}`);
     
        res.status(200).send(obj2);
        return;
@@ -64,10 +64,10 @@ class _recipe {
 
 
     upload = (req:Request, res:Response, next:NextFunction) => {
-        let host:string = `https://paperflips.s3.amazonaws.com`
+        const host:string = `https://paperflips.s3.amazonaws.com`
 
 
-        let data:RecipeJSON = {     //업로드 데이터
+        const data:RecipeJSON = {     //업로드 데이터
             recipeName : req.body.recipeName,
             rarity: req.body.rarity,
             summary: req.body.summary
@@ -86,18 +86,18 @@ class _recipe {
                res.status(404).end()
                return;
              }
-             let raw_data:string = JSON.stringify(rows);   //sql raw data
-             let data:any = JSON.parse(raw_data); //JSON 형식으로 변경
-             let seq:string = JSON.stringify(data[1][0][`LAST_INSERT_ID()`]); //입력한 파일의 SEQ를 받아옴
+             const raw_data:string = JSON.stringify(rows);   //sql raw data
+             const data:any = JSON.parse(raw_data); //JSON 형식으로 변경
+             const seq:string = JSON.stringify(data[1][0][`LAST_INSERT_ID()`]); //입력한 파일의 SEQ를 받아옴
      
      
      
-             let result:FileJSON = { //업로드 파일 관련 메타데이터 
+             const result:FileJSON = { //업로드 파일 관련 메타데이터 
                originalname : req.file.originalname,
                size : req.file.size,
              }
                
-            let image_server = new S3_server();
+            const image_server = new S3_server();
             image_server.recipe_upload(seq, result.originalname); //recipe_img 디렉토리에 파일을 업로드 함..
             this.connection.query(`UPDATE Recipe SET path='${host}/recipe_img/${seq}${path.extname(req.file.originalname)}' WHERE seq='${seq}'`); //업로드 한 파일의 s3 경로를 받아옴 
             res.status(200).end(); //성공 
@@ -107,7 +107,7 @@ class _recipe {
 
     search = (req:Request, res:Response, next:NextFunction) => {
 
-    let recipe:any = req.query.q;
+    const recipe:any = req.query.q;
 
   if(!check_name(recipe)) {
     res.status(404).end() //SQL INJECTION 방지를 위한 정규식 체크
@@ -125,8 +125,8 @@ class _recipe {
         res.status(404).end() //404
         return;
       } 
-      let raw_data:string = JSON.stringify(rows);
-      let data:any = JSON.parse(`{ "data" : [ ${raw_data.substring(1, raw_data.length - 1)}] , "length" : ${rows.length}}`); //데이터 가공 
+      const raw_data:string = JSON.stringify(rows);
+      const data:any = JSON.parse(`{ "data" : [ ${raw_data.substring(1, raw_data.length - 1)}] , "length" : ${rows.length}}`); //데이터 가공 
       res.status(200).send(data)
       return
   })
@@ -146,8 +146,8 @@ class _recipe {
                 res.status(404).end() // 실패 
                 return;
                }
-               let raw_data:string = JSON.stringify(rows);
-               let data:AllRecipeJSON= JSON.parse(`{ "data" : [ ${raw_data.substring(1, raw_data.length - 1)} ], "length" : ${rows.length}}`);//데이터 가공
+               const raw_data:string = JSON.stringify(rows);
+               const data:AllRecipeJSON= JSON.parse(`{ "data" : [ ${raw_data.substring(1, raw_data.length - 1)} ], "length" : ${rows.length}}`);//데이터 가공
         
                 res.status(200).send(data) // 성공
             });
@@ -160,7 +160,7 @@ class _recipe {
 
     addDetail = (req:Request, res:Response, next:NextFunction) => {
         try{
-            let data:RecipeDetail = {
+            const data:RecipeDetail = {
               recipeName:req.params.recipeName,
               detail:req.body.detail,
               VidPath:req.body.VidPath,

@@ -2,7 +2,7 @@ import multer from 'multer';
 
 import * as express from 'express';
 
-let storage:multer.StorageEngine = multer.diskStorage({  
+const storage:multer.StorageEngine = multer.diskStorage({  
     destination: function(req:express.Request, file:Express.Multer.File, callback:(error: Error | null, destination: string) => void) {
       callback(null, "images/")
     }, //파일 저장 위치
@@ -12,7 +12,7 @@ let storage:multer.StorageEngine = multer.diskStorage({
   })
   
   
-  export let upload:multer.Multer = multer( //업로드 객체 
+  export const upload:multer.Multer = multer( //업로드 객체 
     {
       storage:storage
     }

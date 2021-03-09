@@ -3,7 +3,7 @@ import {recipe} from '../MiddleWare/recipe'
 import {upload} from '../Image_Server/storage_handler'
 import {auth} from '../Controller/authetication'
 
-let router:express.Router = express.Router();
+const router:express.Router = express.Router();
 
 router.get(`/data/:seq`, recipe.connectCheck,recipe.get); //레시피 데이터 
 
