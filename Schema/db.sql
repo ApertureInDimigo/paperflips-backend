@@ -33,7 +33,6 @@ CREATE TABLE IF NOT EXISTS Collection (
 
 );
 
-
 CREATE TABLE RoomInfo(
    seq INT(11) NOT NULL auto_increment primary key,
    title varchar(20) NOT NULL,
