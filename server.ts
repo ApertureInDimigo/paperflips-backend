@@ -7,7 +7,7 @@ const favicon = require('serve-favicon');
 const path = require('path');
 const helmet = require('helmet');
 const compression = require('compression');
-const vultrIP = require('./config/vurturIP')
+const vultrIP = require('./config/vultrIP')
 
 import {chk_req} from './Controller/chk_req'
 
