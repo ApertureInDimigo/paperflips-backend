@@ -3,7 +3,7 @@
 - STAC 2020
 - [frontend](https://github.com/ApertureInDimigo/paperflips_flutter)
 - [backend](https://github.com/minsoo0715/paperflips-backend)
-- 
+
 ### Developer
 - [JominJun](https://github.com/JominJun) Design/Planning
 - [woduq1414](https://github.com/woduq1414) FrontEnd Development
