@@ -16,7 +16,7 @@
    - [Document](https://documenter.getpostman.com/view/11620009/TVCcYpSB#0b625ec1-33e1-4bd3-a768-762f1aeee354)
 
 ## Used Tech
- - TypeScript, Node.js, Express.js, MySQL
+ - TypeScript, Node.js, Express.js, MySQL, AWS S3
 
 
 
