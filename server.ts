@@ -1,16 +1,17 @@
-const express = require('express');
-const bodyParser = require('body-parser');
+import express from 'express';
+import bodyParser from 'body-parser';
 const cookieParser = require('cookie-parser');
-const https = require('https');
-const fs = require('fs');
+import https from 'https';
+import fs from 'fs';
 const favicon = require('serve-favicon');
-const path = require('path');
-const helmet = require('helmet');
+import path from 'path';
+import helmet from 'helmet';
 const compression = require('compression');
-const vultrIP = require('./config/vultrIP')
+import { hostname } from './config/hostname';
 
 import {chk_req} from './Controller/chk_req'
 
+import Router from './router/main'
 
 const app = express();
 app.use(compression());
@@ -21,16 +22,12 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(favicon(path.join(__dirname, 'favicon', 'favicon.ico')));
 
 app.use(chk_req);
+app.use(Router);
 
 console.log(process.env.NODE_ENV);
-require('./router/main')(app);
-
-// app.set('views', `${__dirname}/public`);
-// app.set('view engine', 'ejs');
-// app.engine('html', require('ejs').renderFile);
 
 if (process.env.NODE_ENV === 'production') {
-  app.listen(80, vultrIP, () => {
+  app.listen(80, hostname, () => {
     console.log('Express server has started on port 80');
   });
   const options = {
@@ -39,7 +36,7 @@ if (process.env.NODE_ENV === 'production') {
     key: fs.readFileSync('ssl-key/paperflips_com.key'),
   };
 
-  https.createServer(options, app).listen(443, vultrIP, () => {
+  https.createServer(options, app).listen(443, hostname, () => {
     console.log('Express server has started on port 443');
   });
   
